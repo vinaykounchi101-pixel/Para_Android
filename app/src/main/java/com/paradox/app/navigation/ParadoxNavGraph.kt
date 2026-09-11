@@ -93,6 +93,9 @@ fun ParadoxNavGraph(
                 },
                 onNavigateToExport = {
                     navController.navigate(Screen.Export.route)
+                },
+                onNavigateToCapture = { mode ->
+                    navController.navigate(Screen.Capture.createRoute(mode))
                 }
             )
         }
@@ -278,6 +281,29 @@ fun ParadoxNavGraph(
 
         composable(Screen.Export.route) {
             ExportScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // Phase 3 Assisted Capture
+        composable(
+            route = Screen.Capture.route,
+            arguments = listOf(
+                navArgument("mode") {
+                    type = NavType.StringType
+                    defaultValue = "QUICK_ADD"
+                    nullable = true
+                }
+            )
+        ) { backStackEntry ->
+            val modeStr = backStackEntry.arguments?.getString("mode") ?: "QUICK_ADD"
+            val mode = try {
+                com.paradox.app.feature.capture.CaptureMode.valueOf(modeStr)
+            } catch (_: Exception) {
+                com.paradox.app.feature.capture.CaptureMode.QUICK_ADD
+            }
+            com.paradox.app.feature.capture.CaptureHubScreen(
+                initialMode = mode,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

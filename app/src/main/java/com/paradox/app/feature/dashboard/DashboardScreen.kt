@@ -67,6 +67,7 @@ fun DashboardScreen(
     onNavigateToRecurring: () -> Unit = {},
     onNavigateToSavingsGoals: () -> Unit = {},
     onNavigateToExport: () -> Unit = {},
+    onNavigateToCapture: (String) -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -158,7 +159,8 @@ fun DashboardScreen(
                     onNavigateToAccounts = onNavigateToAccounts,
                     onNavigateToRecurring = onNavigateToRecurring,
                     onNavigateToSavingsGoals = onNavigateToSavingsGoals,
-                    onNavigateToExport = onNavigateToExport
+                    onNavigateToExport = onNavigateToExport,
+                    onNavigateToCapture = onNavigateToCapture
                 )
             }
         }
@@ -175,7 +177,8 @@ private fun DashboardContent(
     onNavigateToAccounts: () -> Unit,
     onNavigateToRecurring: () -> Unit,
     onNavigateToSavingsGoals: () -> Unit,
-    onNavigateToExport: () -> Unit
+    onNavigateToExport: () -> Unit,
+    onNavigateToCapture: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -191,6 +194,21 @@ private fun DashboardContent(
                 .padding(bottom = 14.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            com.paradox.app.core.ui.components.ParadoxFilterChip(
+                selected = false,
+                onClick = { onNavigateToCapture("QUICK_ADD") },
+                label = "⚡ Quick Add"
+            )
+            com.paradox.app.core.ui.components.ParadoxFilterChip(
+                selected = false,
+                onClick = { onNavigateToCapture("OCR") },
+                label = "📷 Scan Receipt"
+            )
+            com.paradox.app.core.ui.components.ParadoxFilterChip(
+                selected = false,
+                onClick = { onNavigateToCapture("VOICE") },
+                label = "🎤 Voice Entry"
+            )
             com.paradox.app.core.ui.components.ParadoxFilterChip(
                 selected = false,
                 onClick = onNavigateToIncome,

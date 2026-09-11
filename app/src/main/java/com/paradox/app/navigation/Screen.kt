@@ -42,4 +42,9 @@ sealed class Screen(val route: String) {
     }
 
     data object Export : Screen("export")
+
+    // Phase 3 Routes
+    data object Capture : Screen("capture?mode={mode}") {
+        fun createRoute(mode: String = "QUICK_ADD") = "capture?mode=$mode"
+    }
 }
