@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import java.util.UUID
@@ -103,5 +104,3 @@ class CalculateBudgetStatusUseCase @Inject constructor(
         }
     }
 }
-
-private fun <T, R> Flow<T>.map(transform: suspend (value: T) -> R): Flow<R> = kotlinx.coroutines.flow.map(this, transform)

@@ -39,7 +39,7 @@ class MoneyTest {
     fun `cannot add different currencies`() {
         val m1 = Money.of("100.00", "INR")
         val m2 = Money.of("50.00", "USD")
-        val _ = m1 + m2
+        m1 + m2
     }
 
     @Test

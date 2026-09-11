@@ -2,6 +2,7 @@ package com.paradox.app.feature.dashboard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,6 +62,11 @@ fun DashboardScreen(
     onNavigateToBudgets: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToExpenseDetail: (String) -> Unit,
+    onNavigateToIncome: () -> Unit = {},
+    onNavigateToAccounts: () -> Unit = {},
+    onNavigateToRecurring: () -> Unit = {},
+    onNavigateToSavingsGoals: () -> Unit = {},
+    onNavigateToExport: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -147,7 +153,12 @@ fun DashboardScreen(
                     summary = summary,
                     onNavigateToLedger = onNavigateToLedger,
                     onNavigateToBudgets = onNavigateToBudgets,
-                    onNavigateToExpenseDetail = onNavigateToExpenseDetail
+                    onNavigateToExpenseDetail = onNavigateToExpenseDetail,
+                    onNavigateToIncome = onNavigateToIncome,
+                    onNavigateToAccounts = onNavigateToAccounts,
+                    onNavigateToRecurring = onNavigateToRecurring,
+                    onNavigateToSavingsGoals = onNavigateToSavingsGoals,
+                    onNavigateToExport = onNavigateToExport
                 )
             }
         }
@@ -159,7 +170,12 @@ private fun DashboardContent(
     summary: DashboardSummary,
     onNavigateToLedger: () -> Unit,
     onNavigateToBudgets: () -> Unit,
-    onNavigateToExpenseDetail: (String) -> Unit
+    onNavigateToExpenseDetail: (String) -> Unit,
+    onNavigateToIncome: () -> Unit,
+    onNavigateToAccounts: () -> Unit,
+    onNavigateToRecurring: () -> Unit,
+    onNavigateToSavingsGoals: () -> Unit,
+    onNavigateToExport: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -167,6 +183,41 @@ private fun DashboardContent(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 8.dp)
     ) {
+        // Quick Access Services Grid / Row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(bottom = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            com.paradox.app.core.ui.components.ParadoxFilterChip(
+                selected = false,
+                onClick = onNavigateToIncome,
+                label = "Income & Cash Flow"
+            )
+            com.paradox.app.core.ui.components.ParadoxFilterChip(
+                selected = false,
+                onClick = onNavigateToAccounts,
+                label = "Wallets / Accounts"
+            )
+            com.paradox.app.core.ui.components.ParadoxFilterChip(
+                selected = false,
+                onClick = onNavigateToRecurring,
+                label = "Subscriptions"
+            )
+            com.paradox.app.core.ui.components.ParadoxFilterChip(
+                selected = false,
+                onClick = onNavigateToSavingsGoals,
+                label = "Savings Goals"
+            )
+            com.paradox.app.core.ui.components.ParadoxFilterChip(
+                selected = false,
+                onClick = onNavigateToExport,
+                label = "Export"
+            )
+        }
+
         // Hero Spending Section
         ParadoxCard(
             modifier = Modifier.fillMaxWidth()
@@ -265,7 +316,7 @@ private fun DashboardContent(
                             )
                         }
                         Spacer(modifier = Modifier.height(4.dp))
-                        Row(verticalAlignment = Alignment.Baseline) {
+                        Row(verticalAlignment = Alignment.Bottom) {
                             Text(
                                 text = CurrencyFormatter.format(summary.safeToSpendToday),
                                 style = MaterialTheme.typography.titleLarge.copy(

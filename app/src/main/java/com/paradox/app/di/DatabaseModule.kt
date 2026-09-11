@@ -15,7 +15,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import net.zetetic.database.sqlcipher.SupportFactory
+import net.sqlcipher.database.SupportFactory
 import javax.inject.Singleton
 
 @Module
@@ -55,4 +55,16 @@ object DatabaseModule {
 
     @Provides
     fun provideBudgetDao(db: ParadoxDatabase): BudgetDao = db.budgetDao()
+
+    @Provides
+    fun provideIncomeDao(db: ParadoxDatabase): com.paradox.app.data.local.dao.IncomeDao = db.incomeDao()
+
+    @Provides
+    fun provideAccountDao(db: ParadoxDatabase): com.paradox.app.data.local.dao.AccountDao = db.accountDao()
+
+    @Provides
+    fun provideRecurringExpenseDao(db: ParadoxDatabase): com.paradox.app.data.local.dao.RecurringExpenseDao = db.recurringExpenseDao()
+
+    @Provides
+    fun provideSavingsGoalDao(db: ParadoxDatabase): com.paradox.app.data.local.dao.SavingsGoalDao = db.savingsGoalDao()
 }

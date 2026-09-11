@@ -55,6 +55,10 @@ data class Money(
     companion object {
         val ZERO_INR = Money(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN), "INR")
 
+        fun zero(currencyCode: String = "INR"): Money {
+            return Money(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN), currencyCode)
+        }
+
         fun of(amount: String, currencyCode: String = "INR"): Money {
             val sanitized = amount.trim().replace(",", "")
             val parsed = BigDecimal(sanitized).setScale(2, RoundingMode.HALF_EVEN)

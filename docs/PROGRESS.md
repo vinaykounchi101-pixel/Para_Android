@@ -1,6 +1,6 @@
 # Paradox Native Android App — Project Progress
 
-## Current Status: Phase 1 (Core Foundation & MVP) Completed
+## Current Status: Phase 2 (Native Convenience & Financial Foundation) Completed
 
 ### Phase-by-Phase Roadmap Progress
 
@@ -19,13 +19,13 @@
   - [x] Automated Unit Tests (`MoneyTest`, `BudgetStatusTest`, `AddExpenseUseCaseTest`, `DeleteCategoryUseCaseTest`)
   - [x] Automated Instrumentation Profile Isolation Test (`ProfileIsolationTest`)
 
-- [ ] **Phase 2: Native Convenience & Financial Foundation** (Pending)
-  - [ ] Income & Net Cash Flow tracking
-  - [ ] Wallets / Accounts model
-  - [ ] Recurring Expenses & Subscriptions engine
-  - [ ] Savings Goals tracker
-  - [ ] CSV / PDF export
-  - [ ] Jetpack Glance Home Screen Widget & Shortcuts
+- [x] **Phase 2: Native Convenience & Financial Foundation**
+  - [x] Income & Net Cash Flow tracking (`FR-P2-005`)
+  - [x] Wallets / Accounts model (`FR-P2-006`)
+  - [x] Recurring Expenses & Subscriptions engine (`FR-P2-007`)
+  - [x] Savings Goals tracker (`FR-P2-008`)
+  - [x] CSV / Vector PDF export (`FR-P2-009`)
+  - [x] Jetpack Glance Home Screen Widget & Shortcuts (`FR-P2-001`, `FR-P2-002`)
 
 - [ ] **Phase 3: Assisted Capture Pipeline** (Pending)
   - [ ] CameraX + ML Kit OCR receipt scanner

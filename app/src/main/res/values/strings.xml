@@ -20,4 +20,8 @@
     <string name="error_empty_field">This field cannot be empty</string>
     <string name="error_invalid_amount">Amount must be greater than zero</string>
     <string name="error_future_date">Date cannot be in the future</string>
+    <string name="shortcut_add_expense_short">Add Expense</string>
+    <string name="shortcut_add_expense_long">Record an expense</string>
+    <string name="shortcut_record_income_short">Record Income</string>
+    <string name="shortcut_record_income_long">Record new income</string>
 </resources>
