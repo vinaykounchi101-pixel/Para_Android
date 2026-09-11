@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Paradox</string>
+    <string name="vault_encrypted">व्हॉल्ट एन्क्रिप्टेड</string>
+    <string name="local_storage_badge">स्थानिक डिव्हाइस स्टोरेज</string>
+    <string name="onboarding_title">Paradox मध्ये आपले स्वागत आहे</string>
+    <string name="onboarding_subtitle">खाजगी, सुरक्षित आणि बुद्धिमान वैयक्तिक वित्त</string>
+    <string name="unlock_title">Paradox अनलॉक करा</string>
+    <string name="unlock_subtitle">आपल्या आर्थिक व्हॉल्टमध्ये प्रवेश करण्यासाठी क्रेडेंशियल प्रविष्ट करा</string>
+    <string name="dashboard_title">डॅशबोर्ड</string>
+    <string name="ledger_title">खातावही</string>
+    <string name="budgets_title">बजेट</string>
+    <string name="settings_title">सेटिंग्ज</string>
+    <string name="add_expense_title">खर्च जोडा</string>
+    <string name="edit_expense_title">खर्च संपादित करा</string>
+    <string name="delete_confirm_title">हटवण्याची खात्री करा</string>
+    <string name="delete_confirm_message">तुम्हाला नक्की हे हटवायचे आहे का? ही कृती कायमस्वरूपी आहे.</string>
+    <string name="cancel">रद्द करा</string>
+    <string name="delete">हटवा</string>
+    <string name="save">जतन करा</string>
+    <string name="error_empty_field">हे फील्ड रिकामे असू शकत नाही</string>
+    <string name="error_invalid_amount">रक्कम शून्यापेक्षा जास्त असावी</string>
+    <string name="error_future_date">तारीख भविष्यातील असू शकत नाही</string>
+    <string name="shortcut_add_expense_short">खर्च जोडा</string>
+    <string name="shortcut_add_expense_long">नवीन खर्च नोंदवा</string>
+    <string name="shortcut_record_income_short">उत्पन्न नोंदवा</string>
+    <string name="shortcut_record_income_long">नवीन उत्पन्न नोंदवा</string>
+</resources>

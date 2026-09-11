@@ -3,12 +3,14 @@ package com.paradox.app
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.paradox.app.core.datastore.SessionDataStore
 import com.paradox.app.core.ui.theme.ParadoxTheme
+import com.paradox.app.core.ui.theme.ThemePalette
 import com.paradox.app.domain.repository.ProfileRepository
 import com.paradox.app.navigation.ParadoxNavGraph
 import com.paradox.app.navigation.Screen
@@ -41,7 +44,20 @@ class MainActivity : FragmentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            ParadoxTheme {
+            val themeMode by sessionDataStore.themeMode.collectAsState(initial = "SYSTEM")
+            val themePalette by sessionDataStore.themePalette.collectAsState(initial = "SLATE")
+
+            val isDark = when (themeMode) {
+                "LIGHT" -> false
+                "DARK" -> true
+                else -> isSystemInDarkTheme()
+            }
+            val palette = ThemePalette.fromName(themePalette)
+
+            ParadoxTheme(
+                darkTheme = isDark,
+                palette = palette
+            ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

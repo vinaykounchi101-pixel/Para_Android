@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.paradox.app.core.common.Result
 import com.paradox.app.core.datastore.SessionDataStore
 import com.paradox.app.core.security.BiometricPromptManager
+import com.paradox.app.domain.model.AuthType
 import com.paradox.app.domain.model.Profile
 import com.paradox.app.domain.usecase.profile.GetProfilesUseCase
 import com.paradox.app.domain.usecase.profile.UnlockProfileUseCase
@@ -94,6 +95,12 @@ class UnlockViewModel @Inject constructor(
         }
     }
 
+    fun onPatternCompleted(pattern: List<Int>) {
+        val patternString = pattern.joinToString("-")
+        _uiState.update { it.copy(credentialInput = patternString) }
+        unlock()
+    }
+
     fun unlock() {
         val state = _uiState.value
         val profile = state.selectedProfile ?: return
@@ -116,7 +123,7 @@ class UnlockViewModel @Inject constructor(
                         it.copy(
                             isLoading = false,
                             credentialInput = "",
-                            errorMessage = "Incorrect PIN or Password"
+                            errorMessage = if (profile.primaryAuthType == AuthType.PATTERN) "Incorrect Pattern" else "Incorrect PIN or Password"
                         )
                     }
                 }

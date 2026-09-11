@@ -4,6 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.paradox.app.data.local.dao.AccountDao
+import com.paradox.app.data.local.dao.AiInsightLogDao
 import com.paradox.app.data.local.dao.BudgetDao
 import com.paradox.app.data.local.dao.CategoryDao
 import com.paradox.app.data.local.dao.ExpenseDao
@@ -12,7 +13,9 @@ import com.paradox.app.data.local.dao.PaymentMethodDao
 import com.paradox.app.data.local.dao.ProfileDao
 import com.paradox.app.data.local.dao.RecurringExpenseDao
 import com.paradox.app.data.local.dao.SavingsGoalDao
+import com.paradox.app.data.local.dao.SyncQueueDao
 import com.paradox.app.data.local.entity.AccountEntity
+import com.paradox.app.data.local.entity.AiInsightLogEntity
 import com.paradox.app.data.local.entity.BudgetEntity
 import com.paradox.app.data.local.entity.CategoryEntity
 import com.paradox.app.data.local.entity.ExpenseEntity
@@ -22,6 +25,7 @@ import com.paradox.app.data.local.entity.ProfileEntity
 import com.paradox.app.data.local.entity.RecurringExpenseEntity
 import com.paradox.app.data.local.entity.SavingsContributionEntity
 import com.paradox.app.data.local.entity.SavingsGoalEntity
+import com.paradox.app.data.local.entity.SyncQueueItemEntity
 
 @Database(
     entities = [
@@ -34,9 +38,11 @@ import com.paradox.app.data.local.entity.SavingsGoalEntity
         AccountEntity::class,
         RecurringExpenseEntity::class,
         SavingsGoalEntity::class,
-        SavingsContributionEntity::class
+        SavingsContributionEntity::class,
+        AiInsightLogEntity::class,
+        SyncQueueItemEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -50,4 +56,6 @@ abstract class ParadoxDatabase : RoomDatabase() {
     abstract fun accountDao(): AccountDao
     abstract fun recurringExpenseDao(): RecurringExpenseDao
     abstract fun savingsGoalDao(): SavingsGoalDao
+    abstract fun aiInsightLogDao(): AiInsightLogDao
+    abstract fun syncQueueDao(): SyncQueueDao
 }

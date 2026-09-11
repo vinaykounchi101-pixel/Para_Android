@@ -9,15 +9,20 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.paradox.app.feature.account.AccountsScreen
 import com.paradox.app.feature.account.AddEditAccountScreen
+import com.paradox.app.feature.askparadox.AskParadoxScreen
+import com.paradox.app.feature.backup.BackupScreen
 import com.paradox.app.feature.budget.BudgetListScreen
 import com.paradox.app.feature.category.CategoryManagementScreen
 import com.paradox.app.feature.dashboard.DashboardScreen
+import com.paradox.app.feature.engagement.EngagementScreen
+import com.paradox.app.feature.engagement.SplitExpenseScreen
 import com.paradox.app.feature.expense.AddEditExpenseScreen
 import com.paradox.app.feature.expense.ExpenseDetailScreen
 import com.paradox.app.feature.expense.LedgerScreen
 import com.paradox.app.feature.export.ExportScreen
 import com.paradox.app.feature.income.AddEditIncomeScreen
 import com.paradox.app.feature.income.IncomeListScreen
+import com.paradox.app.feature.insights.InsightsHubScreen
 import com.paradox.app.feature.onboarding.OnboardingScreen
 import com.paradox.app.feature.profile.UnlockScreen
 import com.paradox.app.feature.recurring.AddEditRecurringScreen
@@ -25,6 +30,7 @@ import com.paradox.app.feature.recurring.RecurringExpensesScreen
 import com.paradox.app.feature.savingsgoal.AddEditSavingsGoalScreen
 import com.paradox.app.feature.savingsgoal.SavingsGoalsScreen
 import com.paradox.app.feature.settings.SettingsScreen
+import com.paradox.app.feature.sync.SyncSettingsScreen
 
 @Composable
 fun ParadoxNavGraph(
@@ -96,6 +102,15 @@ fun ParadoxNavGraph(
                 },
                 onNavigateToCapture = { mode ->
                     navController.navigate(Screen.Capture.createRoute(mode))
+                },
+                onNavigateToAskParadox = {
+                    navController.navigate(Screen.AskParadox.route)
+                },
+                onNavigateToInsights = {
+                    navController.navigate(Screen.InsightsHub.route)
+                },
+                onNavigateToEngagement = {
+                    navController.navigate(Screen.Engagement.route)
                 }
             )
         }
@@ -106,13 +121,41 @@ fun ParadoxNavGraph(
                 onNavigateToAddExpense = { navController.navigate(Screen.AddExpense.route) },
                 onNavigateToExpenseDetail = { expenseId ->
                     navController.navigate(Screen.ExpenseDetail.createRoute(expenseId))
+                },
+                onNavigateToDashboard = {
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Dashboard.route) { inclusive = true }
+                    }
+                },
+                onNavigateToBudgets = {
+                    navController.navigate(Screen.Budgets.route)
+                },
+                onNavigateToInsights = {
+                    navController.navigate(Screen.InsightsHub.route)
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Screen.Settings.route)
                 }
             )
         }
 
         composable(Screen.Budgets.route) {
             BudgetListScreen(
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToDashboard = {
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Dashboard.route) { inclusive = true }
+                    }
+                },
+                onNavigateToLedger = {
+                    navController.navigate(Screen.Ledger.route)
+                },
+                onNavigateToInsights = {
+                    navController.navigate(Screen.InsightsHub.route)
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Screen.Settings.route)
+                }
             )
         }
 
@@ -130,15 +173,28 @@ fun ParadoxNavGraph(
                 onNavigateToRecurring = { navController.navigate(Screen.Recurring.route) },
                 onNavigateToSavingsGoals = { navController.navigate(Screen.SavingsGoals.route) },
                 onNavigateToExport = { navController.navigate(Screen.Export.route) },
-                onNavigateToUnlock = {
-                    navController.navigate(Screen.Unlock.route) {
+                onNavigateToBackup = { navController.navigate(Screen.Backup.route) },
+                onNavigateToSync = { navController.navigate(Screen.SyncSettings.route) },
+                onNavigateToEngagement = { navController.navigate(Screen.Engagement.route) },
+                onNavigateToInsights = { navController.navigate(Screen.InsightsHub.route) },
+                onNavigateToDashboard = {
+                    navController.navigate(Screen.Dashboard.route) {
                         popUpTo(Screen.Dashboard.route) { inclusive = true }
                     }
                 },
-                onNavigateToOnboarding = {
-                    navController.navigate(Screen.Onboarding.route) {
+                onNavigateToLedger = {
+                    navController.navigate(Screen.Ledger.route)
+                },
+                onNavigateToBudgets = {
+                    navController.navigate(Screen.Budgets.route)
+                },
+                onNavigateToUnlock = {
+                    navController.navigate(Screen.Unlock.route) {
                         popUpTo(0) { inclusive = true }
                     }
+                },
+                onNavigateToOnboarding = {
+                    navController.navigate(Screen.Onboarding.route)
                 }
             )
         }
@@ -304,6 +360,61 @@ fun ParadoxNavGraph(
             }
             com.paradox.app.feature.capture.CaptureHubScreen(
                 initialMode = mode,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // Phase 4 Routes
+        composable(Screen.AskParadox.route) {
+            AskParadoxScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.InsightsHub.route) {
+            InsightsHubScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToAskParadox = { navController.navigate(Screen.AskParadox.route) },
+                onNavigateToDashboard = {
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Dashboard.route) { inclusive = true }
+                    }
+                },
+                onNavigateToLedger = {
+                    navController.navigate(Screen.Ledger.route)
+                },
+                onNavigateToBudgets = {
+                    navController.navigate(Screen.Budgets.route)
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Screen.Settings.route)
+                }
+            )
+        }
+
+        // Phase 5 Routes
+        composable(Screen.Backup.route) {
+            BackupScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.SyncSettings.route) {
+            SyncSettingsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // Phase 6 Routes
+        composable(Screen.Engagement.route) {
+            EngagementScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToSplit = { navController.navigate(Screen.SplitExpense.route) }
+            )
+        }
+
+        composable(Screen.SplitExpense.route) {
+            SplitExpenseScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }

@@ -5,11 +5,17 @@ import androidx.room.Room
 import com.paradox.app.core.common.Constants
 import com.paradox.app.core.database.ParadoxDatabase
 import com.paradox.app.core.security.PassphraseManager
+import com.paradox.app.data.local.dao.AccountDao
+import com.paradox.app.data.local.dao.AiInsightLogDao
 import com.paradox.app.data.local.dao.BudgetDao
 import com.paradox.app.data.local.dao.CategoryDao
 import com.paradox.app.data.local.dao.ExpenseDao
+import com.paradox.app.data.local.dao.IncomeDao
 import com.paradox.app.data.local.dao.PaymentMethodDao
 import com.paradox.app.data.local.dao.ProfileDao
+import com.paradox.app.data.local.dao.RecurringExpenseDao
+import com.paradox.app.data.local.dao.SavingsGoalDao
+import com.paradox.app.data.local.dao.SyncQueueDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -57,14 +63,20 @@ object DatabaseModule {
     fun provideBudgetDao(db: ParadoxDatabase): BudgetDao = db.budgetDao()
 
     @Provides
-    fun provideIncomeDao(db: ParadoxDatabase): com.paradox.app.data.local.dao.IncomeDao = db.incomeDao()
+    fun provideIncomeDao(db: ParadoxDatabase): IncomeDao = db.incomeDao()
 
     @Provides
-    fun provideAccountDao(db: ParadoxDatabase): com.paradox.app.data.local.dao.AccountDao = db.accountDao()
+    fun provideAccountDao(db: ParadoxDatabase): AccountDao = db.accountDao()
 
     @Provides
-    fun provideRecurringExpenseDao(db: ParadoxDatabase): com.paradox.app.data.local.dao.RecurringExpenseDao = db.recurringExpenseDao()
+    fun provideRecurringExpenseDao(db: ParadoxDatabase): RecurringExpenseDao = db.recurringExpenseDao()
 
     @Provides
-    fun provideSavingsGoalDao(db: ParadoxDatabase): com.paradox.app.data.local.dao.SavingsGoalDao = db.savingsGoalDao()
+    fun provideSavingsGoalDao(db: ParadoxDatabase): SavingsGoalDao = db.savingsGoalDao()
+
+    @Provides
+    fun provideAiInsightLogDao(db: ParadoxDatabase): AiInsightLogDao = db.aiInsightLogDao()
+
+    @Provides
+    fun provideSyncQueueDao(db: ParadoxDatabase): SyncQueueDao = db.syncQueueDao()
 }

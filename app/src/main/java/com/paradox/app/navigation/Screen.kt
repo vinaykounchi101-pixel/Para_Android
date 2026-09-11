@@ -47,4 +47,16 @@ sealed class Screen(val route: String) {
     data object Capture : Screen("capture?mode={mode}") {
         fun createRoute(mode: String = "QUICK_ADD") = "capture?mode=$mode"
     }
+
+    // Phase 4 Routes
+    data object AskParadox : Screen("ask_paradox")
+    data object InsightsHub : Screen("insights_hub")
+
+    // Phase 5 Routes
+    data object Backup : Screen("backup")
+    data object SyncSettings : Screen("sync_settings")
+
+    // Phase 6 Routes
+    data object Engagement : Screen("engagement")
+    data object SplitExpense : Screen("split_expense")
 }
