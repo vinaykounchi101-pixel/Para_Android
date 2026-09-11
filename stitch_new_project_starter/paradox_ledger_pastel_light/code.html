@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#FAF9F6;color:#1A1C1E;}body{overscroll-behavior-y:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "on-tertiary-fixed": "#151f05",
+          "error": "#BA6D68",
+          "surface-dim": "#F2EFEB",
+          "on-tertiary": "#ffffff",
+          "surface-container-low": "#F6F4F0",
+          "success-container": "#E1EFE7",
+          "tertiary-container": "#6c7956",
+          "surface-container": "#EFECE6",
+          "on-secondary": "#ffffff",
+          "secondary-container": "#EFE6F5",
+          "on-surface": "#1A1C1E",
+          "surface-container-high": "#E8E4DD",
+          "surface-bright": "#FFFFFF",
+          "on-primary-container": "#152E44",
+          "success": "#628E75",
+          "inverse-primary": "#a8caea",
+          "on-tertiary-container": "#faffe9",
+          "outline-variant": "#c2c7ce",
+          "error-container": "#FBE6E5",
+          "on-secondary-container": "#2C1D38",
+          "on-secondary-fixed-variant": "#50415d",
+          "primary-fixed": "#cce5ff",
+          "on-surface-variant": "#596068",
+          "on-error-container": "#4A1D1A",
+          "on-primary-fixed-variant": "#284a64",
+          "warning": "#B8864E",
+          "surface-variant": "#e3e2e0",
+          "surface": "#FAF9F6",
+          "surface-tint": "#5B7C99",
+          "surface-container-lowest": "#ffffff",
+          "on-success-container": "#173625",
+          "background": "#faf9f6",
+          "on-warning-container": "#482B0A",
+          "tertiary-fixed-dim": "#becca4",
+          "primary-fixed-dim": "#a8caea",
+          "inverse-surface": "#2f312f",
+          "surface-container-highest": "#e3e2e0",
+          "warning-container": "#FBF0E0",
+          "on-background": "#1A1C1E",
+          "primary-container": "#DCE8F2",
+          "outline": "#E5E0D8",
+          "secondary-fixed": "#f1dbfe",
+          "tertiary-fixed": "#dae8be",
+          "on-primary-fixed": "#001e31",
+          "on-tertiary-fixed-variant": "#3f4b2c",
+          "secondary": "#695876",
+          "on-primary": "#ffffff",
+          "inverse-on-surface": "#f2f1ee",
+          "on-error": "#FFFFFF",
+          "secondary-fixed-dim": "#d4bfe1",
+          "tertiary": "#546040",
+          "on-secondary-fixed": "#23162f",
+          "primary": "#5B7C99"
+        },
+        borderRadius: {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        spacing: {
+          "space-xs": "0.25rem",
+          "space-sm": "0.5rem",
+          "space-md": "0.75rem",
+          "space-lg": "1rem",
+          "space-xl": "1.5rem",
+          "space-2xl": "2rem",
+          "gutter": "1rem",
+          "gutter-tablet": "1.5rem",
+          "gutter-desktop": "1.5rem",
+          "margin": "1.25rem",
+          "margin-tablet": "2rem",
+          "margin-desktop": "3rem"
+        },
+        fontFamily: {
+          "headline-sm": ["Roboto Flex"],
+          "label-md": ["Roboto Flex"],
+          "headline-md": ["Roboto Flex"],
+          "title-md": ["Roboto Flex"],
+          "display-md": ["Roboto Flex"],
+          "display-sm": ["Roboto Flex"],
+          "headline-lg-mobile": ["Roboto Flex"],
+          "title-lg": ["Roboto Flex"],
+          "body-sm": ["Roboto Flex"],
+          "headline-lg": ["Roboto Flex"],
+          "label-lg": ["Roboto Flex"],
+          "display-lg": ["Roboto Flex"],
+          "title-sm": ["Roboto Flex"],
+          "label-sm": ["Roboto Flex"],
+          "body-md": ["Roboto Flex"],
+          "body-lg": ["Roboto Flex"],
+          "numeric-hero": ["Roboto Flex"]
+        },
+        fontSize: {
+          "headline-sm": ["20px", { lineHeight: "26px", fontWeight: "600" }],
+          "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.2px", fontWeight: "500" }],
+          "headline-md": ["26px", { lineHeight: "32px", fontWeight: "600" }],
+          "title-md": ["16px", { lineHeight: "22px", fontWeight: "600" }],
+          "title-lg": ["18px", { lineHeight: "24px", fontWeight: "600" }],
+          "body-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.2px", fontWeight: "400" }],
+          "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "600" }],
+          "label-lg": ["14px", { lineHeight: "20px", fontWeight: "600" }],
+          "label-sm": ["11px", { lineHeight: "14px", fontWeight: "500" }],
+          "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+          "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+          "numeric-hero": ["38px", { lineHeight: "46px", fontWeight: "700" }]
+        }
+      }
+    }
+  };
+</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="bg-surface text-on-surface font-body-md flex flex-col min-h-screen antialiased"><header class="fixed top-0 inset-x-0 z-50 bg-surface/90 backdrop-blur-md pt-safe border-b border-outline/70"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><span class="material-symbols-outlined text-[20px]">account_balance</span></div><div class="flex flex-col"><span class="font-title-lg text-title-lg text-on-surface tracking-tight leading-none">Paradox</span><span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider mt-0.5">Ledger</span></div><div class="flex items-center gap-1 px-2 py-0.5 bg-surface-container rounded-full ml-1 border border-outline"><span class="material-symbols-outlined text-[12px] text-on-surface-variant">lock</span><span class="font-label-sm text-[11px] text-on-surface-variant">Personal</span></div></div><div class="flex items-center gap-1"><button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors active:scale-95"><span class="material-symbols-outlined text-[22px]">search</span></button><button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors active:scale-95"><span class="material-symbols-outlined text-[22px]">notifications</span></button><div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline flex items-center justify-center ml-1"><span class="material-symbols-outlined text-on-surface-variant text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-20 pb-36 bg-surface"><div class="flex flex-col w-full">
+<!-- Search Bar: Crisp white/cream surface with delicate border -->
+<div class="px-margin mb-3">
+<div class="relative flex items-center bg-surface-bright rounded-2xl h-13 px-4 border border-outline shadow-sm transition-all focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/10">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] mr-3">search</span>
+<input class="bg-transparent text-on-surface placeholder:text-on-surface-variant font-body-md text-body-md w-full outline-none" placeholder="Search merchant, tag, amount..." type="text"/>
+<div class="flex items-center gap-1 shrink-0 ml-2">
+<button aria-label="Clear or voice search" class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">mic</span>
+</button>
+<div class="w-px h-4 bg-outline mx-0.5"></div>
+<button aria-label="Filter" class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Horizontal Scrollable Filter Chips: Clean Pastel Tones -->
+<div class="w-full overflow-x-auto no-scrollbar pb-6 px-margin flex items-center gap-2.5">
+<!-- Date Range Filter (Active Soft Pastel Tint) -->
+<button class="flex items-center gap-1.5 px-3.5 h-8 rounded-lg bg-primary-container border border-primary/20 text-on-primary-container font-label-md text-label-md shrink-0 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[15px] text-primary">calendar_today</span>
+<span class="font-medium">This Month</span>
+<span class="material-symbols-outlined text-[14px] text-primary">expand_more</span>
+</button>
+<!-- Categories Filter -->
+<button class="flex items-center gap-1.5 px-3.5 h-8 rounded-lg bg-surface-bright border border-outline text-on-surface-variant font-label-md text-label-md shrink-0 active:scale-95 transition-all hover:bg-surface-container-low shadow-sm">
+<span>All Categories</span>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">expand_more</span>
+</button>
+<!-- Payment Method Filter -->
+<button class="flex items-center gap-1.5 px-3.5 h-8 rounded-lg bg-primary-container border border-primary/20 text-on-primary-container font-label-md text-label-md shrink-0 active:scale-95 transition-all">
+<span class="font-medium">UPI, Card</span>
+<span class="material-symbols-outlined text-[14px] text-primary">expand_more</span>
+</button>
+<!-- Sort Filter -->
+<button class="flex items-center gap-1.5 px-3.5 h-8 rounded-lg bg-surface-bright border border-outline text-on-surface-variant font-label-md text-label-md shrink-0 active:scale-95 transition-all hover:bg-surface-container-low shadow-sm">
+<span class="material-symbols-outlined text-[15px] text-on-surface-variant">sort</span>
+<span>Newest</span>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">expand_more</span>
+</button>
+</div>
+<!-- Transaction Groups: Spacious Pastel Containers with High-Contrast Dark Charcoal Amounts -->
+<div class="flex flex-col gap-6 px-margin">
+<!-- Group 1: Today -->
+<section class="flex flex-col">
+<!-- Crisp Date Section Header -->
+<div class="flex items-baseline justify-between px-1 pb-2.5 mb-1 border-b border-outline">
+<div class="flex items-baseline gap-2">
+<span class="font-title-md text-title-md text-on-surface font-medium tracking-tight">Today</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">15 Mar</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant tabular-nums tracking-normal">₹2,140</span>
+</div>
+<!-- Group Rows Container -->
+<div class="flex flex-col divide-y divide-outline/60 bg-surface-bright rounded-2xl border border-outline shadow-sm overflow-hidden">
+<!-- Item 1: Blue Tokai (Pastel Caramel) -->
+<div class="flex items-center justify-between p-4 sm:p-5 hover:bg-surface-container-low transition-colors active:bg-surface-container cursor-pointer" onclick="openTransactionDetail('Blue Tokai Coffee Roasters', '₹340', 'Cortado + Croissant', 'UPI · Google Pay', 'Cafe', '10:42 AM', 'today')">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-10 h-10 rounded-xl bg-[#FBF0E0] flex items-center justify-center shrink-0 text-[#8C5824]">
+<span class="material-symbols-outlined text-[20px]">local_cafe</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate font-medium">Blue Tokai Coffee Roasters</span>
+<div class="flex items-center gap-2 text-on-surface-variant mt-0.5">
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Cortado + Croissant</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant shrink-0"></span>
+<span class="font-label-sm text-label-sm shrink-0">10:42 AM</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end pl-4 shrink-0">
+<span class="font-title-lg text-title-lg text-on-surface font-semibold tabular-nums">₹340</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant tracking-wider mt-0.5">UPI</span>
+</div>
+</div>
+<!-- Item 2: Shell Petroleum (Soft Periwinkle) -->
+<div class="flex items-center justify-between p-4 sm:p-5 hover:bg-surface-container-low transition-colors active:bg-surface-container cursor-pointer" onclick="openTransactionDetail('Shell Petroleum', '₹1,800', 'Full Tank Refuel', 'Credit Card · Regalia', 'Fuel', '08:15 AM', 'today')">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-10 h-10 rounded-xl bg-[#E3EAF3] flex items-center justify-center shrink-0 text-[#3C5A80]">
+<span class="material-symbols-outlined text-[20px]">local_gas_station</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate font-medium">Shell Petroleum</span>
+<div class="flex items-center gap-2 text-on-surface-variant mt-0.5">
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Credit Card (••8291)</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant shrink-0"></span>
+<span class="font-label-sm text-label-sm shrink-0">08:15 AM</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end pl-4 shrink-0">
+<span class="font-title-lg text-title-lg text-on-surface font-semibold tabular-nums">₹1,800</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant tracking-wider mt-0.5">CARD</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Group 2: Yesterday -->
+<section class="flex flex-col">
+<!-- Crisp Date Section Header -->
+<div class="flex items-baseline justify-between px-1 pb-2.5 mb-1 border-b border-outline">
+<div class="flex items-baseline gap-2">
+<span class="font-title-md text-title-md text-on-surface font-medium tracking-tight">Yesterday</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">14 Mar</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant tabular-nums tracking-normal">₹1,370</span>
+</div>
+<!-- Group Rows Container -->
+<div class="flex flex-col divide-y divide-outline/60 bg-surface-bright rounded-2xl border border-outline shadow-sm overflow-hidden">
+<!-- Item 3: Blinkit Instant Mart (Soft Sage) -->
+<div class="flex items-center justify-between p-4 sm:p-5 hover:bg-surface-container-low transition-colors active:bg-surface-container cursor-pointer" onclick="openTransactionDetail('Blinkit Instant Mart', '₹920', 'Weekly Pantry &amp; Dairy', 'UPI · PhonePe', 'Groceries', '07:28 PM', 'yesterday')">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-10 h-10 rounded-xl bg-[#E1EFE7] flex items-center justify-center shrink-0 text-[#326346]">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate font-medium">Blinkit Instant Mart</span>
+<div class="flex items-center gap-2 text-on-surface-variant mt-0.5">
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Weekly Pantry</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant shrink-0"></span>
+<span class="font-label-sm text-label-sm shrink-0">07:28 PM</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end pl-4 shrink-0">
+<span class="font-title-lg text-title-lg text-on-surface font-semibold tabular-nums">₹920</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant tracking-wider mt-0.5">UPI</span>
+</div>
+</div>
+<!-- Item 4: Spotify Premium (Soft Lavender) -->
+<div class="flex items-center justify-between p-4 sm:p-5 hover:bg-surface-container-low transition-colors active:bg-surface-container cursor-pointer" onclick="openTransactionDetail('Spotify Premium Subscription', '₹450', 'Individual Family Tier', 'Debit Card · ICICI', 'Streaming', '02:00 PM', 'yesterday')">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-10 h-10 rounded-xl bg-[#EFE6F5] flex items-center justify-center shrink-0 text-[#5C3D75]">
+<span class="material-symbols-outlined text-[20px]">music_note</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate font-medium">Spotify Premium</span>
+<div class="flex items-center gap-2 text-on-surface-variant mt-0.5">
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Monthly Subscription</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant shrink-0"></span>
+<span class="font-label-sm text-label-sm shrink-0">02:00 PM</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end pl-4 shrink-0">
+<span class="font-title-lg text-title-lg text-on-surface font-semibold tabular-nums">₹450</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant tracking-wider mt-0.5">DEBIT</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Group 3: 12 Mar 2025 -->
+<section class="flex flex-col">
+<!-- Crisp Date Section Header -->
+<div class="flex items-baseline justify-between px-1 pb-2.5 mb-1 border-b border-outline">
+<div class="flex items-baseline gap-2">
+<span class="font-title-md text-title-md text-on-surface font-medium tracking-tight">12 Mar 2025</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">Wednesday</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant tabular-nums tracking-normal">₹4,200</span>
+</div>
+<!-- Group Rows Container -->
+<div class="flex flex-col divide-y divide-outline/60 bg-surface-bright rounded-2xl border border-outline shadow-sm overflow-hidden">
+<!-- Item 5: Uniqlo Apparel (Soft Rose / Peach) -->
+<div class="flex items-center justify-between p-4 sm:p-5 hover:bg-surface-container-low transition-colors active:bg-surface-container cursor-pointer" onclick="openTransactionDetail('Uniqlo Apparel', '₹4,200', 'AIRism Crewnecks &amp; Chinos', 'Credit Card · Diners Club', 'Shopping', '04:12 PM', '12 Mar 2025')">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-10 h-10 rounded-xl bg-[#FBE6E5] flex items-center justify-center shrink-0 text-[#7E3E3A]">
+<span class="material-symbols-outlined text-[20px]">checkroom</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate font-medium">Uniqlo Apparel</span>
+<div class="flex items-center gap-2 text-on-surface-variant mt-0.5">
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Credit Card (••1094)</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant shrink-0"></span>
+<span class="font-label-sm text-label-sm shrink-0">04:12 PM</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end pl-4 shrink-0">
+<span class="font-title-lg text-title-lg text-on-surface font-semibold tabular-nums">₹4,200</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant tracking-wider mt-0.5">CARD</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Security banner: Soft muted pastel container (#EFECE6) with calm slate text -->
+<div class="px-margin mt-8 mb-2">
+<div class="flex items-center justify-center gap-2 py-3 px-4 bg-surface-container rounded-xl border border-outline text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-primary">lock</span>
+<span class="font-body-sm text-body-sm">Encrypted &amp; stored locally on device</span>
+</div>
+</div>
+<!-- Bottom Sheet: Transaction Details Modal Backdrop & Container -->
+<div class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200 flex items-end" id="detailSheetBackdrop">
+<div class="w-full bg-surface-bright rounded-t-[28px] p-6 flex flex-col gap-4 transform translate-y-full transition-transform duration-300 max-h-[751px] overflow-y-auto border-t border-outline shadow-2xl" id="detailSheetContent">
+<!-- Drag Handle -->
+<div class="w-10 h-1 bg-surface-container-high rounded-full mx-auto self-center"></div>
+<!-- Header with Status Pill -->
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-1.5 px-3 py-1 bg-success-container rounded-full border border-success/30">
+<span class="material-symbols-outlined text-success text-[14px]">verified</span>
+<span class="font-label-sm text-label-sm text-on-success-container">Recorded Locally</span>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-95" onclick="closeTransactionDetail()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Merchant & Hero Amount -->
+<div class="flex flex-col items-center justify-center py-3 text-center">
+<div class="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center mb-3 text-primary" id="modalIconContainer">
+<span class="material-symbols-outlined text-[28px]" id="modalIcon">receipt_long</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-medium" id="modalMerchant">Merchant Name</h3>
+<p class="font-label-md text-label-md text-on-surface-variant mt-0.5" id="modalCategory">Category</p>
+<div class="font-numeric-hero text-numeric-hero text-on-surface font-bold mt-2 tracking-tight tabular-nums" id="modalAmount">₹0</div>
+</div>
+<!-- Breakdown Attributes Container -->
+<div class="flex flex-col divide-y divide-outline bg-surface-container-low rounded-2xl border border-outline p-1">
+<div class="flex items-center justify-between p-3.5">
+<span class="font-body-md text-body-md text-on-surface-variant">Payment Method</span>
+<span class="font-label-lg text-label-lg text-on-surface font-medium" id="modalMethod">UPI</span>
+</div>
+<div class="flex items-center justify-between p-3.5">
+<span class="font-body-md text-body-md text-on-surface-variant">Notes</span>
+<span class="font-label-lg text-label-lg text-on-surface truncate max-w-[200px]" id="modalNote">None</span>
+</div>
+<div class="flex items-center justify-between p-3.5">
+<span class="font-body-md text-body-md text-on-surface-variant">Timestamp</span>
+<span class="font-label-lg text-label-lg text-on-surface" id="modalTime">10:42 AM</span>
+</div>
+<div class="flex items-center justify-between p-3.5">
+<span class="font-body-md text-body-md text-on-surface-variant">Tax &amp; Split</span>
+<span class="font-label-lg text-label-lg text-on-surface-variant">Single Payer · No split</span>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex items-center gap-3 pt-2">
+<button class="flex-1 h-12 rounded-full bg-surface-container-high border border-outline text-on-surface font-label-lg text-label-lg flex items-center justify-center gap-2 active:scale-95 transition-transform hover:bg-surface-container">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+<span>Edit Note</span>
+</button>
+<button class="flex-1 h-12 rounded-full bg-primary text-on-primary font-label-lg text-label-lg font-semibold flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-sm">
+<span class="material-symbols-outlined text-[18px]">share</span>
+<span>Share Receipt</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function openTransactionDetail(merchant, amount, note, method, category, time, date) {
+    const backdrop = document.getElementById('detailSheetBackdrop');
+    const content = document.getElementById('detailSheetContent');
+
+    document.getElementById('modalMerchant').textContent = merchant;
+    document.getElementById('modalAmount').textContent = amount;
+    document.getElementById('modalNote').textContent = note;
+    document.getElementById('modalMethod').textContent = method;
+    document.getElementById('modalCategory').textContent = category;
+    document.getElementById('modalTime').textContent = time;
+
+    // Set appropriate icon & soft pastel container style
+    const iconElem = document.getElementById('modalIcon');
+    const iconContainer = document.getElementById('modalIconContainer');
+    if (category.toLowerCase().includes('cafe')) {
+      iconElem.textContent = 'local_cafe';
+      iconContainer.className = 'w-14 h-14 rounded-2xl bg-[#FBF0E0] text-[#8C5824] flex items-center justify-center mb-3';
+    } else if (category.toLowerCase().includes('fuel')) {
+      iconElem.textContent = 'local_gas_station';
+      iconContainer.className = 'w-14 h-14 rounded-2xl bg-[#E3EAF3] text-[#3C5A80] flex items-center justify-center mb-3';
+    } else if (category.toLowerCase().includes('grocer')) {
+      iconElem.textContent = 'shopping_cart';
+      iconContainer.className = 'w-14 h-14 rounded-2xl bg-[#E1EFE7] text-[#326346] flex items-center justify-center mb-3';
+    } else if (category.toLowerCase().includes('stream')) {
+      iconElem.textContent = 'music_note';
+      iconContainer.className = 'w-14 h-14 rounded-2xl bg-[#EFE6F5] text-[#5C3D75] flex items-center justify-center mb-3';
+    } else if (category.toLowerCase().includes('shop')) {
+      iconElem.textContent = 'checkroom';
+      iconContainer.className = 'w-14 h-14 rounded-2xl bg-[#FBE6E5] text-[#7E3E3A] flex items-center justify-center mb-3';
+    } else {
+      iconElem.textContent = 'receipt_long';
+      iconContainer.className = 'w-14 h-14 rounded-2xl bg-surface-container text-primary flex items-center justify-center mb-3';
+    }
+
+    backdrop.classList.remove('pointer-events-none');
+    backdrop.classList.remove('opacity-0');
+    backdrop.classList.add('opacity-100');
+
+    content.classList.remove('translate-y-full');
+    content.classList.add('translate-y-0');
+  }
+
+  function closeTransactionDetail() {
+    const backdrop = document.getElementById('detailSheetBackdrop');
+    const content = document.getElementById('detailSheetContent');
+
+    content.classList.remove('translate-y-0');
+    content.classList.add('translate-y-full');
+
+    backdrop.classList.remove('opacity-100');
+    backdrop.classList.add('opacity-0');
+    setTimeout(() => {
+      backdrop.classList.add('pointer-events-none');
+    }, 250);
+  }
+
+  // Backdrop tap to dismiss
+  document.getElementById('detailSheetBackdrop').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeTransactionDetail();
+    }
+  });
+</script></main><!-- Quick Add Button: Soft Slate Blue #5B7C99 --><div class="fixed bottom-24 right-margin z-50"><button class="flex items-center justify-center gap-space-xs h-13 px-5 bg-primary text-on-primary rounded-full shadow-lg min-w-[48px] min-h-[48px] active:scale-95 transition-transform"><span class="material-symbols-outlined text-[22px] font-bold">add</span><span class="font-label-lg text-label-lg font-semibold tracking-wide">Quick Add</span></button></div><!-- Bottom Navigation: Soft Slate Blue Active Tab with Pastel Container Pill --><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/90 backdrop-blur-xl border-t border-outline"><div class="flex justify-around items-center h-18 px-2"><a class="flex flex-col items-center justify-center gap-1 w-16 h-14 text-on-surface-variant transition-all active:scale-95" data-path="dashboard" href="#"><div class="w-12 h-8 rounded-full flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[22px]">dashboard</span></div><span class="font-label-sm text-label-sm">Dashboard</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-1 w-16 h-14 transition-all active:scale-95 text-primary font-bold" data-path="ledger" href="#"><div class="w-12 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[22px]">receipt_long</span></div><span class="font-label-sm text-label-sm">Ledger</span></a><a class="flex flex-col items-center justify-center gap-1 w-16 h-14 text-on-surface-variant transition-all active:scale-95" data-path="budgets" href="#"><div class="w-12 h-8 rounded-full flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[22px]">account_balance_wallet</span></div><span class="font-label-sm text-label-sm">Budgets</span></a><a class="flex flex-col items-center justify-center gap-1 w-16 h-14 text-on-surface-variant transition-all active:scale-95" data-path="insights" href="#"><div class="w-12 h-8 rounded-full flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[22px]">auto_awesome</span></div><span class="font-label-sm text-label-sm">Insights</span></a><a class="flex flex-col items-center justify-center gap-1 w-16 h-14 text-on-surface-variant transition-all active:scale-95" data-path="settings" href="#"><div class="w-12 h-8 rounded-full flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[22px]">settings</span></div><span class="font-label-sm text-label-sm">Settings</span></a></div></nav></body></html>

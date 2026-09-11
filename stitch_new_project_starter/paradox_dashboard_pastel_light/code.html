@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-base": "#FAF9F6",
+            "surface-container-lowest": "#FFFFFF",
+            "surface-container-low": "#F6F4F0",
+            "surface-container": "#EFECE6",
+            "surface-container-high": "#E8E4DD",
+            "surface-container-highest": "#E3E2E0",
+            "primary": "#5B7C99",
+            "primary-container": "#DCE8F2",
+            "on-primary-container": "#152E44",
+            "text-primary": "#1A1C1E",
+            "text-secondary": "#42474D",
+            "text-tertiary": "#5E6572",
+            "status-positive": "#2D6847",
+            "status-positive-container": "#E1EFE7",
+            "status-warning": "#B8864E",
+            "status-warning-container": "#FBF0E0",
+            "secondary": "#695876",
+            "border-subtle": "#E5E0D8"
+          },
+          fontFamily: {
+            sans: ["Roboto Flex", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    @layer base {
+      html, body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #FAF9F6;
+        color: #1A1C1E;
+        font-family: 'Roboto Flex', sans-serif;
+      }
+      body {
+        overscroll-behavior-y: none;
+      }
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-surface-base text-text-primary flex flex-col min-h-screen selection:bg-primary/20">
+<!-- Native App Header -->
+<header class="fixed top-0 inset-x-0 z-40 bg-surface-base/90 backdrop-blur-md pt-safe border-b border-border-subtle">
+<div class="h-16 px-5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img alt="Paradox App Icon" class="h-7 w-7 object-contain rounded-lg shadow-sm" src="https://lh3.googleusercontent.com/aida/AEtjO1XF8KZPb4EVkBvVTBQbKGACTRhQQzAKDld2JJcUGw12CQ3oWGUqob37jPQv7pfWSooKJPkVHFoYbFwiZbC56QWkdGPzCOcHttRGSX4c9qvsvtOfZGXgiCRP2f1jW_1lnPOqWYvZs47JlP1_1A0tmzO0RZwUqVxI7kqPf3A_kcVNCzrJ7R6j2c6TWIStlkxOE0a0S2snsrog8SXZnG-gyIcfRQNbf096hhH_Lu80tcROAlB7xv-YJTQshBZS"/>
+<div>
+<h1 class="text-[17px] font-semibold text-text-primary tracking-tight leading-tight">Paradox</h1>
+<p class="text-[11px] font-medium tracking-wide text-text-tertiary">VAULT ENCRYPTED</p>
+</div>
+</div>
+<div class="flex items-center gap-1.5">
+<button aria-label="Search" class="w-10 h-10 rounded-full flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[21px]">search</span>
+</button>
+<button aria-label="Notifications" class="w-10 h-10 rounded-full flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[21px]">notifications</span>
+</button>
+<button aria-label="Profile" class="w-8 h-8 ml-1 rounded-full bg-surface-container-high border border-border-subtle flex items-center justify-center text-text-secondary">
+<span class="material-symbols-outlined text-[18px]">person</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col pt-20 pb-36 px-5 space-y-7 max-w-xl mx-auto w-full">
+<!-- Subheader / Period Context Bar -->
+<section class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-2 text-text-tertiary text-[13px] font-medium">
+<span class="material-symbols-outlined text-[15px] text-primary">lock</span>
+<span>Local Device Storage</span>
+</div>
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-lowest border border-border-subtle text-text-primary text-[13px] font-medium hover:bg-surface-container-low transition-colors shadow-xs" id="periodPickerBtn">
+<span>March 2025</span>
+<span class="material-symbols-outlined text-[16px] text-text-tertiary">expand_more</span>
+</button>
+</section>
+<!-- Stark, Editorial Hero Spending Section -->
+<section class="rounded-3xl bg-surface-container-lowest border border-border-subtle p-6 shadow-sm">
+<div class="flex items-start justify-between">
+<div>
+<span class="text-[12px] font-medium uppercase tracking-wider text-text-tertiary">Month Total Spend</span>
+<div class="flex items-baseline gap-1 mt-1.5">
+<span class="text-[40px] font-bold text-text-primary tracking-tight leading-none">₹42,850</span>
+<span class="text-[18px] text-text-tertiary font-normal">.00</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-status-positive-container text-status-positive text-[12px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-[#628E75]"></span>
+          On Track
+        </span>
+</div>
+<!-- Linear Gauge -->
+<div class="mt-6">
+<div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
+<div class="h-full rounded-full bg-primary" style="width: 61.2%;"></div>
+</div>
+<div class="flex items-center justify-between mt-2.5 text-[12px]">
+<span class="text-text-primary font-medium">₹27,150 available</span>
+<span class="text-text-tertiary">Budget ₹70,000</span>
+</div>
+</div>
+<div class="mt-5 pt-4 border-t border-border-subtle flex items-center justify-between text-[12px] text-text-tertiary">
+<span>54% of cycle elapsed</span>
+<span class="text-text-secondary font-medium">61% budget used</span>
+</div>
+</section>
+<!-- Glanceable Native Android Safe-to-Spend Tile -->
+<section class="rounded-2xl bg-surface-container-lowest border border-border-subtle px-5 py-4 flex items-center justify-between shadow-sm">
+<div class="space-y-1">
+<div class="flex items-center gap-1.5 text-text-tertiary text-[12px] font-medium">
+<span>Safe-to-Spend Today</span>
+<span class="material-symbols-outlined text-[15px] text-primary">info</span>
+</div>
+<div class="flex items-baseline gap-1.5">
+<span class="text-[26px] font-bold text-text-primary tracking-tight">₹1,240</span>
+<span class="text-[13px] text-text-tertiary">/ day</span>
+</div>
+</div>
+<div class="text-right">
+<div class="text-[11px] font-semibold text-primary uppercase tracking-wider">Recommended</div>
+<div class="text-[12px] text-text-tertiary mt-0.5">14 days left</div>
+</div>
+</section>
+<!-- Spending Velocity (Clean Minimal Bars) -->
+<section class="rounded-3xl bg-surface-container-lowest border border-border-subtle p-6 space-y-5 shadow-sm">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="text-[16px] font-semibold text-text-primary tracking-tight">Spending Velocity</h2>
+<p class="text-[12px] text-text-tertiary mt-0.5">Daily avg ₹1,382 • Peak Sat ₹2,410</p>
+</div>
+<span class="text-[11px] font-medium text-text-tertiary px-2.5 py-1 rounded-md bg-surface-container-low border border-border-subtle">Last 7 Days</span>
+</div>
+<!-- Minimal Bar Chart with Multi-color Muted Pastels -->
+<div class="grid grid-cols-7 gap-2.5 items-end h-28 pt-4 pb-1">
+<!-- Mon (Pastel Slate Blue) -->
+<div class="flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full rounded-md bg-[#DCE8F2] hover:bg-primary/40 transition-colors h-[40%]"></div>
+<span class="text-[11px] text-text-tertiary font-medium">M</span>
+</div>
+<!-- Tue (Pastel Lilac) -->
+<div class="flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full rounded-md bg-[#EFE6F5] hover:bg-[#82708F]/40 transition-colors h-[58%]"></div>
+<span class="text-[11px] text-text-tertiary font-medium">T</span>
+</div>
+<!-- Wed (Soft Sage) -->
+<div class="flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full rounded-md bg-[#E1EFE7] hover:bg-[#7E8B67]/40 transition-colors h-[30%]"></div>
+<span class="text-[11px] text-text-tertiary font-medium">W</span>
+</div>
+<!-- Thu (Pastel Slate Blue) -->
+<div class="flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full rounded-md bg-[#DCE8F2] hover:bg-primary/40 transition-colors h-[46%]"></div>
+<span class="text-[11px] text-text-tertiary font-medium">T</span>
+</div>
+<!-- Fri (Pastel Lilac) -->
+<div class="flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full rounded-md bg-[#EFE6F5] hover:bg-[#82708F]/40 transition-colors h-[70%]"></div>
+<span class="text-[11px] text-text-tertiary font-medium">F</span>
+</div>
+<!-- Sat (Peak - Muted Slate Blue Accent) -->
+<div class="flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full rounded-md bg-primary hover:bg-primary/90 transition-colors h-[100%] shadow-xs"></div>
+<span class="text-[11px] text-primary font-semibold">S</span>
+</div>
+<!-- Sun (Today - Soft Sage Accent) -->
+<div class="flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full rounded-md bg-[#628E75] hover:bg-[#628E75]/90 transition-colors h-[22%]"></div>
+<span class="text-[11px] text-[#628E75] font-semibold">S</span>
+</div>
+</div>
+</section>
+<!-- Top Categories (Pastel tinted tactile cards) -->
+<section class="space-y-3.5">
+<div class="flex items-center justify-between">
+<h2 class="text-[16px] font-semibold text-text-primary tracking-tight">Top Categories</h2>
+<a class="text-[13px] font-medium text-primary hover:underline" href="#">View all</a>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<!-- Food & Dining (Warm terracotta/peach pastel) -->
+<div class="rounded-2xl bg-[#FFF6F0] border border-[#F5E5DA] p-4 flex flex-col justify-between space-y-3 shadow-xs">
+<div class="flex items-center justify-between">
+<div class="w-8 h-8 rounded-full bg-[#FCE5D8] flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px] text-[#A65B32]">restaurant</span>
+</div>
+<span class="text-[11px] text-[#A65B32] font-semibold">42%</span>
+</div>
+<div>
+<p class="text-[11px] text-text-tertiary font-medium truncate">Dining</p>
+<p class="text-[15px] font-semibold text-text-primary mt-0.5">₹18,200</p>
+</div>
+</div>
+<!-- Groceries (Soft lavender pastel) -->
+<div class="rounded-2xl bg-[#F8F4FA] border border-[#E9E0F0] p-4 flex flex-col justify-between space-y-3 shadow-xs">
+<div class="flex items-center justify-between">
+<div class="w-8 h-8 rounded-full bg-[#EFE6F5] flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px] text-[#695876]">local_mall</span>
+</div>
+<span class="text-[11px] text-[#695876] font-semibold">21%</span>
+</div>
+<div>
+<p class="text-[11px] text-text-tertiary font-medium truncate">Groceries</p>
+<p class="text-[15px] font-semibold text-text-primary mt-0.5">₹9,100</p>
+</div>
+</div>
+<!-- Transit (Soft periwinkle/slate blue pastel) -->
+<div class="rounded-2xl bg-[#F2F6FA] border border-[#DCE5EF] p-4 flex flex-col justify-between space-y-3 shadow-xs">
+<div class="flex items-center justify-between">
+<div class="w-8 h-8 rounded-full bg-[#DCE8F2] flex items-center justify-center">
+<span class="material-symbols-outlined text-[17px] text-primary">directions_car</span>
+</div>
+<span class="text-[11px] text-primary font-semibold">15%</span>
+</div>
+<div>
+<p class="text-[11px] text-text-tertiary font-medium truncate">Transit</p>
+<p class="text-[15px] font-semibold text-text-primary mt-0.5">₹6,400</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Transactions (Refined native row dividers, min 56px touch target) -->
+<section class="space-y-3.5">
+<div class="flex items-center justify-between">
+<h2 class="text-[16px] font-semibold text-text-primary tracking-tight">Recent Transactions</h2>
+<a class="text-[13px] font-medium text-primary hover:underline" href="#">See all</a>
+</div>
+<div class="rounded-3xl bg-surface-container-lowest border border-border-subtle divide-y divide-border-subtle overflow-hidden shadow-sm">
+<!-- Row 1: Blue Tokai -->
+<div class="flex items-center justify-between px-4 py-3.5 hover:bg-surface-container-low active:bg-surface-container transition-colors cursor-pointer min-h-[64px]" role="button" tabindex="0">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-10 h-10 rounded-full bg-[#FCE5D8] flex items-center justify-center text-[#A65B32] shrink-0">
+<span class="material-symbols-outlined text-[20px]">coffee</span>
+</div>
+<div class="min-w-0">
+<p class="text-[14px] font-medium text-text-primary truncate">Blue Tokai Coffee</p>
+<p class="text-[12px] text-text-tertiary mt-0.5">Today, 10:15 AM • Food</p>
+</div>
+</div>
+<div class="text-right shrink-0 pl-3">
+<p class="text-[15px] font-semibold text-text-primary">₹340</p>
+<p class="text-[11px] text-text-tertiary">Local</p>
+</div>
+</div>
+<!-- Row 2: Shell Fuel Station -->
+<div class="flex items-center justify-between px-4 py-3.5 hover:bg-surface-container-low active:bg-surface-container transition-colors cursor-pointer min-h-[64px]" role="button" tabindex="0">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-10 h-10 rounded-full bg-[#DCE8F2] flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[20px]">local_gas_station</span>
+</div>
+<div class="min-w-0">
+<p class="text-[14px] font-medium text-text-primary truncate">Shell Fuel Station</p>
+<p class="text-[12px] text-text-tertiary mt-0.5">Yesterday, 6:42 PM • Transit</p>
+</div>
+</div>
+<div class="text-right shrink-0 pl-3">
+<p class="text-[15px] font-semibold text-text-primary">₹1,800</p>
+<p class="text-[11px] text-text-tertiary">Auto</p>
+</div>
+</div>
+<!-- Row 3: Blinkit Quick Mart -->
+<div class="flex items-center justify-between px-4 py-3.5 hover:bg-surface-container-low active:bg-surface-container transition-colors cursor-pointer min-h-[64px]" role="button" tabindex="0">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-10 h-10 rounded-full bg-[#EFE6F5] flex items-center justify-center text-[#695876] shrink-0">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+</div>
+<div class="min-w-0">
+<p class="text-[14px] font-medium text-text-primary truncate">Blinkit Quick Mart</p>
+<p class="text-[12px] text-text-tertiary mt-0.5">Mar 14, 2:10 PM • Groceries</p>
+</div>
+</div>
+<div class="text-right shrink-0 pl-3">
+<p class="text-[15px] font-semibold text-text-primary">₹920</p>
+<p class="text-[11px] text-text-tertiary">Receipt</p>
+</div>
+</div>
+<!-- Row 4: Client Invoice Payout -->
+<div class="flex items-center justify-between px-4 py-3.5 hover:bg-surface-container-low active:bg-surface-container transition-colors cursor-pointer min-h-[64px]" role="button" tabindex="0">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-10 h-10 rounded-full bg-status-positive-container flex items-center justify-center text-status-positive shrink-0">
+<span class="material-symbols-outlined text-[20px]">call_received</span>
+</div>
+<div class="min-w-0">
+<p class="text-[14px] font-medium text-text-primary truncate">Client Invoice Payout</p>
+<p class="text-[12px] text-text-tertiary mt-0.5">Mar 13, 11:30 AM • Income</p>
+</div>
+</div>
+<div class="text-right shrink-0 pl-3">
+<p class="text-[15px] font-semibold text-status-positive">+₹12,500</p>
+<p class="text-[11px] text-status-positive font-medium">Credited</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Discrete Privacy Statement -->
+<div class="flex items-center justify-center gap-2 text-text-tertiary text-[12px] pt-1">
+<span class="material-symbols-outlined text-[15px] text-primary">verified_user</span>
+<span>On-device processing • No cloud telemetry</span>
+</div>
+</main>
+<!-- Clean Floating Action Button (M3 Quick Add) -->
+<div class="fixed bottom-24 right-5 z-40">
+<button aria-label="Add transaction" class="flex items-center gap-2 h-13 px-5 py-3.5 bg-primary text-white rounded-2xl shadow-md hover:bg-primary/90 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[22px] font-semibold">add</span>
+<span class="text-[14px] font-semibold tracking-tight">Quick Add</span>
+</button>
+</div>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 inset-x-0 z-40 pb-safe bg-surface-container-lowest/95 backdrop-blur-xl border-t border-border-subtle shadow-lg">
+<div class="flex justify-around items-center h-18 px-3">
+<a aria-current="page" class="flex flex-col items-center justify-center gap-1 w-16 py-2 text-on-primary-container active:scale-95 transition-transform" data-path="dashboard" href="#">
+<div class="w-12 h-7 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px] text-on-primary-container">dashboard</span>
+</div>
+<span class="text-[11px] font-semibold text-text-primary">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 w-16 py-2 text-text-tertiary hover:text-text-primary active:scale-95 transition-colors" data-path="ledger" href="#">
+<div class="w-12 h-7 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</div>
+<span class="text-[11px] font-medium">Ledger</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 w-16 py-2 text-text-tertiary hover:text-text-primary active:scale-95 transition-colors" data-path="budgets" href="#">
+<div class="w-12 h-7 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+</div>
+<span class="text-[11px] font-medium">Budgets</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 w-16 py-2 text-text-tertiary hover:text-text-primary active:scale-95 transition-colors" data-path="insights" href="#">
+<div class="w-12 h-7 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">auto_awesome</span>
+</div>
+<span class="text-[11px] font-medium">Insights</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 w-16 py-2 text-text-tertiary hover:text-text-primary active:scale-95 transition-colors" data-path="settings" href="#">
+<div class="w-12 h-7 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</div>
+<span class="text-[11px] font-medium">Settings</span>
+</a>
+</div>
+</nav>
+<script>
+    document.getElementById('periodPickerBtn')?.addEventListener('click', function() {
+      this.classList.add('scale-95');
+      setTimeout(() => this.classList.remove('scale-95'), 150);
+    });
+  </script>
+</body></html>

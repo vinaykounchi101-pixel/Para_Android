@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#0F1117;color:#e2e2eb;}body{overscroll-behavior-y:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface-dim": "#111319",
+          "on-warning-container": "#FDE6CE",
+          "on-tertiary-fixed-variant": "#254e3c",
+          "on-secondary-fixed-variant": "#533f63",
+          "on-surface": "#e2e2eb",
+          "secondary-fixed-dim": "#d7bde9",
+          "outline-variant": "#373E52",
+          "error-container": "#93000a",
+          "tertiary": "#a3d1b8",
+          "outline": "#262B3A",
+          "surface-variant": "#33343b",
+          "on-error": "#330D0D",
+          "background": "#111319",
+          "on-primary": "#0F1E2C",
+          "inverse-on-surface": "#2e3037",
+          "secondary-container": "#554166",
+          "on-secondary-container": "#F1E5F8",
+          "surface-container-high": "#282a30",
+          "on-primary-container": "#DCE8F2",
+          "on-secondary": "#281736",
+          "on-tertiary-fixed": "#002114",
+          "on-error-container": "#FCE0E0",
+          "surface-container-low": "#161922",
+          "primary": "#aacaea",
+          "on-tertiary-container": "#D8EBE0",
+          "tertiary-container": "#82ae97",
+          "lilac": "#D2B8DF",
+          "primary-fixed": "#cde5ff",
+          "periwinkle": "#9EB6DE",
+          "surface-container": "#1E2230",
+          "on-primary-fixed": "#001d32",
+          "on-surface-variant": "#94A3B8",
+          "tertiary-fixed-dim": "#a3d1b8",
+          "inverse-primary": "#43617d",
+          "warning-container": "#3D2B16",
+          "tertiary-fixed": "#bfedd4",
+          "surface-container-highest": "#33343b",
+          "surface-tint": "#aacaea",
+          "error": "#E58686",
+          "secondary": "#d7bde9",
+          "primary-container": "#203447",
+          "surface-container-lowest": "#0c0e14",
+          "secondary-fixed": "#f1daff",
+          "surface-bright": "#373940",
+          "inverse-surface": "#e2e2eb",
+          "on-secondary-fixed": "#251335",
+          "on-tertiary": "#0b3727",
+          "surface": "#0F1117",
+          "warning": "#E5AF74",
+          "on-primary-fixed-variant": "#2a4964",
+          "on-background": "#e2e2eb",
+          "on-warning": "#311C04",
+          "primary-fixed-dim": "#aacaea"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-xl": "2rem",
+          "space-sm": "0.5rem",
+          "space-xs": "0.25rem",
+          "gutter-tablet": "1.5rem",
+          "margin-tablet": "2rem",
+          "margin-desktop": "3rem",
+          "space-md": "1rem",
+          "gutter": "1rem",
+          "space-lg": "1.5rem",
+          "margin": "1rem",
+          "gutter-desktop": "1.5rem"
+        },
+        "fontFamily": {
+          "headline-sm": ["Roboto Flex"],
+          "label-md": ["Roboto Flex"],
+          "headline-md": ["Roboto Flex"],
+          "title-md": ["Roboto Flex"],
+          "display-md": ["Roboto Flex"],
+          "display-sm": ["Roboto Flex"],
+          "headline-lg-mobile": ["Roboto Flex"],
+          "code-md": ["JetBrains Mono"],
+          "title-lg": ["Roboto Flex"],
+          "body-sm": ["Roboto Flex"],
+          "headline-lg": ["Roboto Flex"],
+          "label-lg": ["Roboto Flex"],
+          "display-lg": ["Roboto Flex"],
+          "title-sm": ["Roboto Flex"],
+          "label-sm": ["Roboto Flex"],
+          "body-md": ["Roboto Flex"],
+          "body-lg": ["Roboto Flex"]
+        },
+        "fontSize": {
+          "headline-sm": ["24px", { "lineHeight": "32px", "fontWeight": "500" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "headline-md": ["28px", { "lineHeight": "36px", "fontWeight": "500" }],
+          "title-md": ["16px", { "lineHeight": "24px", "letterSpacing": "0.15px", "fontWeight": "600" }],
+          "display-md": ["45px", { "lineHeight": "52px", "fontWeight": "400" }],
+          "display-sm": ["36px", { "lineHeight": "44px", "fontWeight": "400" }],
+          "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "500" }],
+          "code-md": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+          "title-lg": ["22px", { "lineHeight": "28px", "fontWeight": "500" }],
+          "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.4px", "fontWeight": "400" }],
+          "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "500" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "500" }],
+          "display-lg": ["57px", { "lineHeight": "64px", "fontWeight": "400" }],
+          "title-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1px", "fontWeight": "600" }],
+          "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+          "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.25px", "fontWeight": "400" }],
+          "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "0.5px", "fontWeight": "400" }]
+        }
+      }
+    }
+  }
+</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="bg-[#0F1117] text-[#e2e2eb] font-body-md flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-[#0F1117]/90 backdrop-blur-xl pt-safe border-b border-[#262B3A]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="Paradox App Icon" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XF8KZPb4EVkBvVTBQbKGACTRhQQzAKDld2JJcUGw12CQ3oWGUqob37jPQv7pfWSooKJPkVHFoYbFwiZbC56QWkdGPzCOcHttRGSX4c9qvsvtOfZGXgiCRP2f1jW_1lnPOqWYvZs47JlP1_1A0tmzO0RZwUqVxI7kqPf3A_kcVNCzrJ7R6j2c6TWIStlkxOE0a0S2snsrog8SXZnG-gyIcfRQNbf096hhH_Lu80tcROAlB7xv-YJTQshBZS"/><div class="flex flex-col"><span class="font-title-lg text-title-lg text-[#F1F3F8] tracking-tight leading-none">Settings</span><span class="font-label-sm text-[11px] text-[#94A3B8] mt-0.5">Preferences &amp; Security</span></div></div><div class="flex items-center gap-1"><button aria-label="Search" class="w-10 h-10 rounded-full flex items-center justify-center text-[#94A3B8] hover:text-[#F1F3F8] hover:bg-[#1E2433] transition-colors active:scale-95"><span class="material-symbols-outlined text-[22px]">search</span></button><button aria-label="Notifications" class="w-10 h-10 rounded-full flex items-center justify-center text-[#94A3B8] hover:text-[#F1F3F8] hover:bg-[#1E2433] transition-colors active:scale-95"><span class="material-symbols-outlined text-[22px]">notifications</span></button></div></div></header><main class="flex-1 flex flex-col relative w-full pt-20 pb-36 bg-[#0F1117]"><div class="flex flex-col w-full px-margin space-y-6">
+<!-- Profile & Security Hero Header Card -->
+<div class="bg-[#161922] rounded-2xl p-5 border border-[#262B3A] shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3.5">
+<div class="w-12 h-12 rounded-full bg-[#1E2433] border border-[#89A8C7]/30 flex items-center justify-center text-[#89A8C7] font-title-lg tracking-tight font-semibold">
+          AR
+        </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-title-lg text-title-lg text-[#F1F3F8]">Aditya R.</span>
+<span class="text-[11px] text-[#89A8C7] bg-[#1E2433] border border-[#262B3A] px-2 py-0.5 rounded-full font-medium">Primary</span>
+</div>
+<span class="font-body-sm text-[#94A3B8]">aditya@local.vault</span>
+</div>
+</div>
+<button class="flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-[#1E2433] hover:bg-[#282F42] text-[#89A8C7] font-label-md transition-colors active:scale-95 border border-[#262B3A]" id="switch-profile-btn">
+<span class="material-symbols-outlined text-[16px]">sync_alt</span>
+<span>Switch</span>
+</button>
+</div>
+<div class="mt-4 pt-3.5 border-t border-[#262B3A] flex items-center justify-between text-body-sm">
+<div class="flex items-center gap-2 text-[#94A3B8]">
+<span class="material-symbols-outlined text-[#89A8C7] text-[17px]">lock</span>
+<span class="text-[13px]">AES-256 GCM Device Encrypted</span>
+</div>
+<span class="text-[#89A8C7] bg-[#1E2433] border border-[#89A8C7]/30 px-2.5 py-0.5 rounded-full text-[11px] font-medium tracking-wide flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-[#89A8C7]"></span>
+        Isolated
+      </span>
+</div>
+</div>
+<!-- Group 1: Security & Privacy -->
+<div class="space-y-2">
+<div class="px-2 flex items-center justify-between">
+<span class="font-label-md text-[#94A3B8] tracking-wider uppercase font-semibold text-[11px]">Security &amp; Privacy</span>
+<span class="font-label-sm text-[11px] text-[#89A8C7] font-medium">Strict Local</span>
+</div>
+<div class="bg-[#161922] rounded-2xl overflow-hidden border border-[#262B3A] shadow-sm">
+<!-- App Lock (Toggle) -->
+<div class="flex items-center justify-between px-4 py-4 min-h-[58px] active:bg-[#1E2433]/50 transition-colors">
+<div class="flex items-center gap-3.5">
+<div class="w-9 h-9 rounded-full bg-[#1E2433] flex items-center justify-center text-[#89A8C7]">
+<span class="material-symbols-outlined text-[19px]">screen_lock_portrait</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-[15px] text-[#F1F3F8]">App Lock</span>
+<span class="font-body-sm text-[#94A3B8] text-[13px]">Master PIN or biometrics required</span>
+</div>
+</div>
+<button aria-checked="true" class="w-12 h-7 rounded-full bg-[#89A8C7] relative p-0.5 transition-colors focus:outline-none shrink-0" id="toggle-app-lock" role="switch">
+<span class="block w-6 h-6 rounded-full bg-[#0F1117] shadow-sm transform translate-x-5 transition-transform duration-200"></span>
+</button>
+</div>
+<div class="h-px bg-[#262B3A] ml-16 mr-4"></div>
+<!-- Biometric Unlock (Toggle) -->
+<div class="flex items-center justify-between px-4 py-4 min-h-[58px] active:bg-[#1E2433]/50 transition-colors">
+<div class="flex items-center gap-3.5">
+<div class="w-9 h-9 rounded-full bg-[#1E2433] flex items-center justify-center text-[#89A8C7]">
+<span class="material-symbols-outlined text-[19px]">fingerprint</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-[15px] text-[#F1F3F8]">Biometric Unlock</span>
+<span class="font-body-sm text-[#94A3B8] text-[13px]">Prompt on resume or launch</span>
+</div>
+</div>
+<button aria-checked="true" class="w-12 h-7 rounded-full bg-[#89A8C7] relative p-0.5 transition-colors focus:outline-none shrink-0" id="toggle-biometric" role="switch">
+<span class="block w-6 h-6 rounded-full bg-[#0F1117] shadow-sm transform translate-x-5 transition-transform duration-200"></span>
+</button>
+</div>
+<div class="h-px bg-[#262B3A] ml-16 mr-4"></div>
+<!-- Change Master PIN (Nav Action) -->
+<button class="w-full flex items-center justify-between px-4 py-4 min-h-[58px] text-left active:bg-[#1E2433]/50 transition-colors">
+<div class="flex items-center gap-3.5">
+<div class="w-9 h-9 rounded-full bg-[#1E2433] flex items-center justify-center text-[#89A8C7]">
+<span class="material-symbols-outlined text-[19px]">pin</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-[15px] text-[#F1F3F8]">Change Master PIN</span>
+<span class="font-body-sm text-[#94A3B8] text-[13px]">Last changed 42 days ago</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[#94A3B8] text-[20px]">chevron_right</span>
+</button>
+<div class="h-px bg-[#262B3A] ml-16 mr-4"></div>
+<!-- Auto-lock Timer (Picker Item) -->
+<div class="flex items-center justify-between px-4 py-4 min-h-[58px] active:bg-[#1E2433]/50 transition-colors">
+<div class="flex items-center gap-3.5">
+<div class="w-9 h-9 rounded-full bg-[#1E2433] flex items-center justify-center text-[#89A8C7]">
+<span class="material-symbols-outlined text-[19px]">timer</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-[15px] text-[#F1F3F8]">Auto-lock timer</span>
+<span class="font-body-sm text-[#94A3B8] text-[13px]">Lock on backgrounding</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-[#89A8C7] font-label-md text-[13px] px-2.5 py-1 rounded-md bg-[#1E2433] hover:bg-[#282F42] border border-[#262B3A] transition-colors">
+<span>Immediately</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Group 2: Preferences & Regional -->
+<div class="space-y-2">
+<div class="px-2">
+<span class="font-label-md text-[#94A3B8] tracking-wider uppercase font-semibold text-[11px]">Preferences</span>
+</div>
+<div class="bg-[#161922] rounded-2xl overflow-hidden border border-[#262B3A] shadow-sm">
+<!-- Primary Currency -->
+<div class="flex items-center justify-between px-4 py-4 min-h-[58px] active:bg-[#1E2433]/50 transition-colors">
+<div class="flex items-center gap-3.5">
+<div class="w-9 h-9 rounded-full bg-[#2A2318] flex items-center justify-center text-[#E5AF74]">
+<span class="material-symbols-outlined text-[19px]">currency_rupee</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-[15px] text-[#F1F3F8]">Primary Currency</span>
+<span class="font-body-sm text-[#94A3B8] text-[13px]">Base ledger valuation</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-[#F1F3F8] font-label-md text-[13px] px-2.5 py-1 rounded-md bg-[#1E2433] hover:bg-[#282F42] border border-[#262B3A] transition-colors">
+<span>INR (₹)</span>
+<span class="material-symbols-outlined text-[16px] text-[#94A3B8]">expand_more</span>
+</div>
+</div>
+<div class="h-px bg-[#262B3A] ml-16 mr-4"></div>
+<!-- First Day of Month -->
+<div class="flex items-center justify-between px-4 py-4 min-h-[58px] active:bg-[#1E2433]/50 transition-colors">
+<div class="flex items-center gap-3.5">
+<div class="w-9 h-9 rounded-full bg-[#2A2318] flex items-center justify-center text-[#E5AF74]">
+<span class="material-symbols-outlined text-[19px]">calendar_today</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-[15px] text-[#F1F3F8]">First Day of Month</span>
+<span class="font-body-sm text-[#94A3B8] text-[13px]">Budget cycle calculation</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-[#F1F3F8] font-label-md text-[13px] px-2.5 py-1 rounded-md bg-[#1E2433] hover:bg-[#282F42] border border-[#262B3A] transition-colors">
+<span>1st of Month</span>
+<span class="material-symbols-outlined text-[16px] text-[#94A3B8]">expand_more</span>
+</div>
+</div>
+<div class="h-px bg-[#262B3A] ml-16 mr-4"></div>
+<!-- Theme -->
+<div class="flex items-center justify-between px-4 py-4 min-h-[58px] active:bg-[#1E2433]/50 transition-colors">
+<div class="flex items-center gap-3.5">
+<div class="w-9 h-9 rounded-full bg-[#2A2318] flex items-center justify-center text-[#E5AF74]">
+<span class="material-symbols-outlined text-[19px]">dark_mode</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-[15px] text-[#F1F3F8]">Theme</span>
+<span class="font-body-sm text-[#94A3B8] text-[13px]">Pastel Dark baseline</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-[#89A8C7] font-label-md text-[13px] px-2.5 py-1 rounded-md bg-[#1E2433] hover:bg-[#282F42] border border-[#262B3A] transition-colors">
+<span>Pastel Dark</span>
+<span class="material-symbols-outlined text-[16px] text-[#94A3B8]">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Group 3: Financial Engine & Intelligence -->
+<div class="space-y-2">
+<div class="px-2">
+<span class="font-label-md text-[#94A3B8] tracking-wider uppercase font-semibold text-[11px]">Engine &amp; Rules</span>
+</div>
+<div class="bg-[#161922] rounded-2xl overflow-hidden border border-[#262B3A] shadow-sm">
+<!-- Categories & Tags -->
+<button class="w-full flex items-center justify-between px-4 py-4 min-h-[58px] text-left active:bg-[#1E2433]/50 transition-colors">
+<div class="flex items-center gap-3.5">
+<div class="w-9 h-9 rounded-full bg-[#251D2D] flex items-center justify-center text-[#BCA3CE]">
+<span class="material-symbols-outlined text-[19px]">category</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-[15px] text-[#F1F3F8]">Categories &amp; Tags</span>
+<span class="font-body-sm text-[#94A3B8] text-[13px]">Rules &amp; recurring tags</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-[#94A3B8]">
+<span class="font-label-md text-[13px]">18 active</span>
+<span class="material-symbols-outlined text-[20px] text-[#94A3B8]">chevron_right</span>
+</div>
+</button>
+<div class="h-px bg-[#262B3A] ml-16 mr-4"></div>
+<!-- Payment Methods -->
+<button class="w-full flex items-center justify-between px-4 py-4 min-h-[58px] text-left active:bg-[#1E2433]/50 transition-colors">
+<div class="flex items-center gap-3.5">
+<div class="w-9 h-9 rounded-full bg-[#251D2D] flex items-center justify-center text-[#BCA3CE]">
+<span class="material-symbols-outlined text-[19px]">credit_card</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-[15px] text-[#F1F3F8]">Payment Methods</span>
+<span class="font-body-sm text-[#94A3B8] text-[13px]">Wallets, banks &amp; cards</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-[#94A3B8]">
+<span class="font-label-md text-[13px]">Cash, UPI, 4 Cards</span>
+<span class="material-symbols-outlined text-[20px] text-[#94A3B8]">chevron_right</span>
+</div>
+</button>
+<div class="h-px bg-[#262B3A] ml-16 mr-4"></div>
+<!-- Safe-to-Spend Guardrails (Toggle) -->
+<div class="flex items-center justify-between px-4 py-4 min-h-[58px] active:bg-[#1E2433]/50 transition-colors">
+<div class="flex items-center gap-3.5">
+<div class="w-9 h-9 rounded-full bg-[#251D2D] flex items-center justify-center text-[#BCA3CE]">
+<span class="material-symbols-outlined text-[19px]">shield</span>
+</div>
+<div class="flex flex-col pr-2">
+<div class="flex items-center gap-2">
+<span class="font-title-md text-[15px] text-[#F1F3F8]">Safe-to-Spend Guardrails</span>
+<span class="px-2 py-0.5 rounded text-[10px] bg-[#162A20] border border-[#86B29B]/30 text-[#86B29B] font-semibold">Strict</span>
+</div>
+<span class="font-body-sm text-[#94A3B8] text-[13px]">Paces daily budget allocation</span>
+</div>
+</div>
+<button aria-checked="true" class="w-12 h-7 rounded-full bg-[#89A8C7] relative p-0.5 transition-colors focus:outline-none shrink-0" id="toggle-guardrails" role="switch">
+<span class="block w-6 h-6 rounded-full bg-[#0F1117] shadow-sm transform translate-x-5 transition-transform duration-200"></span>
+</button>
+</div>
+</div>
+</div>
+<!-- Group 4: Data & Local Vault -->
+<div class="space-y-2">
+<div class="px-2">
+<span class="font-label-md text-[#94A3B8] tracking-wider uppercase font-semibold text-[11px]">Data &amp; Vault</span>
+</div>
+<div class="bg-[#161922] rounded-2xl overflow-hidden border border-[#262B3A] shadow-sm">
+<!-- Export Data -->
+<button class="w-full flex items-center justify-between px-4 py-4 min-h-[58px] text-left active:bg-[#1E2433]/50 transition-colors">
+<div class="flex items-center gap-3.5">
+<div class="w-9 h-9 rounded-full bg-[#162A20] flex items-center justify-center text-[#86B29B]">
+<span class="material-symbols-outlined text-[19px]">file_download</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-[15px] text-[#F1F3F8]">Export Data</span>
+<span class="font-body-sm text-[#94A3B8] text-[13px]">Encrypted JSON / Standard CSV</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[#94A3B8] text-[20px]">chevron_right</span>
+</button>
+<div class="h-px bg-[#262B3A] ml-16 mr-4"></div>
+<!-- Local Vault Backup -->
+<button class="w-full flex items-center justify-between px-4 py-4 min-h-[58px] text-left active:bg-[#1E2433]/50 transition-colors" id="create-snapshot-btn">
+<div class="flex items-center gap-3.5">
+<div class="w-9 h-9 rounded-full bg-[#162A20] flex items-center justify-center text-[#86B29B]">
+<span class="material-symbols-outlined text-[19px]">folder_zip</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-[15px] text-[#F1F3F8]">Local Vault Backup</span>
+<span class="font-body-sm text-[#94A3B8] text-[13px]" id="snapshot-status-text">Last snapshot: Today, 08:30 AM</span>
+</div>
+</div>
+<div class="px-3.5 py-1 rounded-full bg-[#1E2433] text-[#89A8C7] font-label-md text-[12px] font-semibold border border-[#262B3A] hover:bg-[#282F42] transition-colors">
+          Backup
+        </div>
+</button>
+</div>
+</div>
+<!-- Air-Gapped Visual Guarantee Card -->
+<div class="p-4 rounded-2xl bg-[#162A20]/40 border border-[#86B29B]/30 flex items-start gap-3.5">
+<div class="w-8 h-8 rounded-full bg-[#162A20] border border-[#86B29B]/40 flex items-center justify-center text-[#86B29B] shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">offline_bolt</span>
+</div>
+<div class="flex flex-col space-y-0.5">
+<span class="font-label-lg text-[#F1F3F8] text-[14px] font-semibold">Air-Gapped Architecture</span>
+<span class="font-body-sm text-[#94A3B8] text-[13px] leading-relaxed">Paradox never requests network access for transactions. Calculations execute entirely on-device.</span>
+</div>
+</div>
+<!-- Footer Info -->
+<div class="pt-2 pb-4 flex flex-col items-center justify-center space-y-1 text-center">
+<span class="font-label-md text-[13px] text-[#94A3B8]">Paradox v1.0.0 (Local-First Edition)</span>
+<div class="flex items-center gap-2 text-[#94A3B8]/70 font-body-sm text-[12px]">
+<span>Build 2024.11.08</span>
+<span>•</span>
+<span>Material You M3</span>
+<span>•</span>
+<span>Zero Tracker Promise</span>
+</div>
+</div>
+</div>
+<script>
+  // Micro-interactions for Material toggles and profile actions
+  const initToggles = () => {
+    const switches = ['toggle-app-lock', 'toggle-biometric', 'toggle-guardrails'];
+    
+    switches.forEach(id => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+
+      btn.addEventListener('click', () => {
+        const isChecked = btn.getAttribute('aria-checked') === 'true';
+        const nextState = !isChecked;
+        btn.setAttribute('aria-checked', String(nextState));
+        
+        const knob = btn.querySelector('span');
+        if (nextState) {
+          btn.classList.remove('bg-[#282A30]');
+          btn.classList.add('bg-[#89A8C7]');
+          knob.classList.remove('translate-x-0.5', 'bg-[#94A3B8]');
+          knob.classList.add('translate-x-5', 'bg-[#0F1117]');
+        } else {
+          btn.classList.remove('bg-[#89A8C7]');
+          btn.classList.add('bg-[#282A30]');
+          knob.classList.remove('translate-x-5', 'bg-[#0F1117]');
+          knob.classList.add('translate-x-0.5', 'bg-[#94A3B8]');
+        }
+      });
+    });
+
+    const snapshotBtn = document.getElementById('create-snapshot-btn');
+    const snapshotText = document.getElementById('snapshot-status-text');
+    if (snapshotBtn && snapshotText) {
+      snapshotBtn.addEventListener('click', () => {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        snapshotText.textContent = 'Last snapshot: Today, ' + timeStr;
+        
+        const pill = snapshotBtn.querySelector('.rounded-full');
+        if (pill) {
+          pill.textContent = 'Saved!';
+          setTimeout(() => {
+            pill.textContent = 'Backup';
+          }, 1500);
+        }
+      });
+    }
+
+    const switchBtn = document.getElementById('switch-profile-btn');
+    if (switchBtn) {
+      switchBtn.addEventListener('click', () => {
+        switchBtn.classList.add('scale-95');
+        setTimeout(() => switchBtn.classList.remove('scale-95'), 150);
+      });
+    }
+  };
+
+  initToggles();
+</script></main><div class="fixed bottom-24 right-margin z-50"><button class="flex items-center justify-center gap-space-xs h-14 px-5 bg-[#89A8C7] text-[#0F1E2C] rounded-full shadow-[0_8px_20px_rgba(0,0,0,0.4)] min-w-[48px] min-h-[48px] active:scale-95 transition-transform"><span class="material-symbols-outlined text-[26px] font-bold">add</span><span class="font-label-lg text-label-lg font-semibold tracking-wide">Quick Add</span></button></div><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-[#0F1117]/95 backdrop-blur-xl border-t border-[#262B3A]" data-active-classes="[&amp;&gt;div]:bg-[#1E2433] text-[#89A8C7] font-bold"><div class="flex justify-around items-center h-20 px-2"><a class="flex flex-col items-center justify-center gap-1 w-16 h-14 text-[#94A3B8] hover:text-[#F1F3F8] transition-all active:scale-95" data-path="dashboard" href="#"><div class="w-12 h-8 rounded-full flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[22px]">dashboard</span></div><span class="font-label-sm text-label-sm">Dashboard</span></a><a class="flex flex-col items-center justify-center gap-1 w-16 h-14 text-[#94A3B8] hover:text-[#F1F3F8] transition-all active:scale-95" data-path="ledger" href="#"><div class="w-12 h-8 rounded-full flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[22px]">receipt_long</span></div><span class="font-label-sm text-label-sm">Ledger</span></a><a class="flex flex-col items-center justify-center gap-1 w-16 h-14 text-[#94A3B8] hover:text-[#F1F3F8] transition-all active:scale-95" data-path="budgets" href="#"><div class="w-12 h-8 rounded-full flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[22px]">account_balance_wallet</span></div><span class="font-label-sm text-label-sm">Budgets</span></a><a class="flex flex-col items-center justify-center gap-1 w-16 h-14 text-[#94A3B8] hover:text-[#F1F3F8] transition-all active:scale-95" data-path="insights" href="#"><div class="w-12 h-8 rounded-full flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[22px]">auto_awesome</span></div><span class="font-label-sm text-label-sm">Insights</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-1 w-16 h-14 transition-all active:scale-95 [&amp;&gt;div]:bg-[#1E2433] text-[#89A8C7] font-bold" data-path="settings" href="#"><div class="w-12 h-8 rounded-full flex items-center justify-center transition-colors"><span class="material-symbols-outlined text-[22px]">settings</span></div><span class="font-label-sm text-label-sm font-semibold">Settings</span></a></div></nav></body></html>
