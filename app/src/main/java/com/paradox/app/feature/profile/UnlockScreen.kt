@@ -108,7 +108,7 @@ fun UnlockScreen(
             Spacer(modifier = Modifier.height(18.dp))
 
             Text(
-                text = "Welcome to SmartSpend",
+                text = "Welcome to Paradox",
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Normal,
                     fontFamily = FontFamily.Serif

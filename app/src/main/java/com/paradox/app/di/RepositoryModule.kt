@@ -63,4 +63,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindSavingsGoalRepository(impl: SavingsGoalRepositoryImpl): SavingsGoalRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDebtRepository(impl: com.paradox.app.data.repository.DebtRepositoryImpl): com.paradox.app.domain.repository.DebtRepository
 }

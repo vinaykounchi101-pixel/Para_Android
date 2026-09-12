@@ -79,4 +79,10 @@ object DatabaseModule {
 
     @Provides
     fun provideSyncQueueDao(db: ParadoxDatabase): SyncQueueDao = db.syncQueueDao()
+
+    @Provides
+    fun provideDebtDao(db: ParadoxDatabase): com.paradox.app.data.local.dao.DebtDao = db.debtDao()
+
+    @Provides
+    fun provideDebtRepaymentDao(db: ParadoxDatabase): com.paradox.app.data.local.dao.DebtRepaymentDao = db.debtRepaymentDao()
 }

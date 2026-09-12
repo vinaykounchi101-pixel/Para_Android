@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.combine
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.TextStyle
-import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 import javax.inject.Inject
 
@@ -23,16 +23,26 @@ class GetDashboardSummaryUseCase @Inject constructor(
     private val categoryRepository: CategoryRepository,
     private val calculateBudgetStatusUseCase: CalculateBudgetStatusUseCase
 ) {
-    operator fun invoke(profileId: String): Flow<DashboardSummary> {
+    operator fun invoke(
+        profileId: String,
+        yearMonth: YearMonth = YearMonth.now()
+    ): Flow<DashboardSummary> {
         val today = LocalDate.now()
-        val firstDayOfMonth = today.with(TemporalAdjusters.firstDayOfMonth())
-        val lastDayOfMonth = today.with(TemporalAdjusters.lastDayOfMonth())
-        val daysInMonth = today.lengthOfMonth()
-        val remainingDays = (daysInMonth - today.dayOfMonth + 1).coerceAtLeast(1)
+        val firstDayOfMonth = yearMonth.atDay(1)
+        val lastDayOfMonth = yearMonth.atEndOfMonth()
+        val daysInMonth = yearMonth.lengthOfMonth()
+        val isCurrentMonth = yearMonth == YearMonth.now()
+        val remainingDays = if (isCurrentMonth) {
+            (daysInMonth - today.dayOfMonth + 1).coerceAtLeast(1)
+        } else if (yearMonth.isBefore(YearMonth.now())) {
+            1
+        } else {
+            daysInMonth
+        }
 
         val expensesThisMonthFlow = expenseRepository.getExpensesInRange(profileId, firstDayOfMonth, lastDayOfMonth)
         val categoriesFlow = categoryRepository.getCategories(profileId)
-        val budgetStatusFlow = calculateBudgetStatusUseCase(profileId, BudgetType.MONTHLY)
+        val budgetStatusFlow = calculateBudgetStatusUseCase(profileId, BudgetType.MONTHLY, firstDayOfMonth, lastDayOfMonth)
         val recentExpensesFlow = expenseRepository.getRecentExpenses(profileId, 5)
 
         return combine(
@@ -46,16 +56,26 @@ class GetDashboardSummaryUseCase @Inject constructor(
             val categoryAmounts = mutableMapOf<String, BigDecimal>()
             val dailyAmounts = mutableMapOf<LocalDate, BigDecimal>()
 
-            // Initialize last 7 days for velocity chart
-            val sevenDaysAgo = today.minusDays(6)
+            // Velocity chart:
+            // If current month, show past 7 days ending today.
+            // If past month, show the last 7 days of that month.
+            // If future month, show first 7 days.
+            val velocityEndDay = if (isCurrentMonth) {
+                today
+            } else if (yearMonth.isBefore(YearMonth.now())) {
+                lastDayOfMonth
+            } else {
+                firstDayOfMonth.plusDays(6.coerceAtMost((daysInMonth - 1).toLong()))
+            }
+            val velocityStartDay = velocityEndDay.minusDays(6)
             for (i in 0..6) {
-                dailyAmounts[sevenDaysAgo.plusDays(i.toLong())] = BigDecimal.ZERO
+                dailyAmounts[velocityStartDay.plusDays(i.toLong())] = BigDecimal.ZERO
             }
 
             expenses.forEach { expense ->
                 totalAmount = totalAmount.add(expense.money.amount)
                 categoryAmounts[expense.categoryId] = (categoryAmounts[expense.categoryId] ?: BigDecimal.ZERO).add(expense.money.amount)
-                if (!expense.date.isBefore(sevenDaysAgo) && !expense.date.isAfter(today)) {
+                if (!expense.date.isBefore(velocityStartDay) && !expense.date.isAfter(velocityEndDay)) {
                     dailyAmounts[expense.date] = (dailyAmounts[expense.date] ?: BigDecimal.ZERO).add(expense.money.amount)
                 }
             }

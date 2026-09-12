@@ -1,29 +1,31 @@
 # Paradox — Software Requirements Specification (SRS)
 
-**Document Version:** 1.1
-**Status:** Draft
-**Based on:** PARADOX_MASTER_PRD.md (v2.0)
-**Platform:** Native Android
-**Document Type:** Software Requirements Specification
+**Document Version:** 1.2  
+**Status:** Approved Technical Specification (Updated with Debts & Udhaar Khata, Dynamic Month Selector, Wallets Net Balance Hero, & Multilingual Localization)  
+**Based on:** PARADOX_MASTER_PRD.md (v2.1)  
+**Platform:** Native Android  
+**Document Type:** Software Requirements Specification  
 
 ---
 
 ## 1. Introduction
 
 ### 1.1 Purpose
-This SRS translates the Paradox Master PRD (v2.0) into concrete, buildable software requirements: functional requirements organized by delivery phase, non-functional requirements, the technical architecture and stack, the data model, and the project folder structure. It is the source of truth for *what to build and how it's structured* — the PRD remains the source of truth for *why*.
+This SRS translates the Paradox Master PRD (v2.1) into concrete, buildable software requirements: functional requirements organized by delivery phase, non-functional requirements, the technical architecture and stack, the data model, and the project folder structure. It is the source of truth for *what to build and how it's structured* — the PRD remains the source of truth for *why*.
 
 ### 1.2 Scope
-Paradox is a native Android personal finance app built around **local-first private profiles** (no cloud account required for core use), fast expense capture, budgeting, and progressively-introduced AI intelligence (Ask Paradox, Safe-to-Spend, Financial Health Score, Leak Hunter, etc.). This SRS covers Phases 1–6 as defined in the Master PRD, with Phase 1 specified to implementation-ready detail and later phases specified to a level sufficient for planning and architecture decisions today (module boundaries, data model, extension points).
+Paradox is a native Android personal finance app built around **local-first private profiles** (no cloud account required for core use), fast expense capture, budgeting, debts and udhaar ledger, multi-account wallets, and progressively-introduced AI intelligence (Ask Paradox, Safe-to-Spend, Financial Health Score, Leak Hunter, etc.). This SRS covers Phases 1–6 as defined in the Master PRD, with Phase 1 and Phase 2 specified to implementation-ready detail and later phases specified to a level sufficient for planning and architecture decisions today (module boundaries, data model, extension points).
 
 ### 1.3 Definitions
 - **Profile** — a local, isolated financial identity on-device. Not a cloud account.
 - **Assisted capture** — any non-manual entry path (voice, OCR, quick add, screenshot, share, SMS candidate) that always ends in a user-confirmed preview.
+- **Debts & Udhaar (Khata)** — peer-to-peer tracking of money lent (receivables) and borrowed (payables) with partial repayments and contact picker integration.
+- **Net Balance Hero** — combined real-time overview of financial liquidity across all registered cash, bank, card, and digital wallet accounts.
 - **Safe-to-Spend** — deterministic daily spending-capacity estimate.
 - **Ask Paradox** — the app's grounded conversational AI surface.
 
 ### 1.4 References
-- PARADOX_MASTER_PRD.md (v2.0) — product requirements source.
+- PARADOX_MASTER_PRD.md (v2.1) — product requirements source.
 
 ---
 
@@ -33,7 +35,7 @@ Paradox is a native Android personal finance app built around **local-first priv
 Paradox Android is a **new, standalone project**. It does not share backend, database, authentication, or architecture with any existing Paradox web application. All data for Phase 1–4 is local to the device; cloud sync is an optional Phase 5 capability, added only if justified.
 
 ### 2.2 Product Functions (Summary)
-Local private profiles and unlock → expense/income/budget/savings management → fast and assisted capture (voice, OCR, NL quick add, share, screenshot, SMS) → dashboards and analytics → financial intelligence (Ask Paradox, Safe-to-Spend, Financial Health Score, Leak Hunter, Purchase Simulator) → native Android integrations (widget, shortcuts, notifications, share sheet) → optional sync/backup in later phases.
+Local private profiles and unlock → expense/income/budget/savings/debt management → multi-account wallets and Net Balance Hero → fast and assisted capture (voice, OCR, NL quick add, share, screenshot, SMS) → dynamic month-filtered dashboards and analytics → in-app multilingual localization (EN, HI, MR, Hinglish) → financial intelligence (Ask Paradox, Safe-to-Spend, Financial Health Score, Leak Hunter, Purchase Simulator) → native Android integrations (widget, shortcuts, notifications, share sheet) → optional sync/backup in later phases.
 
 ### 2.3 User Classes
 Single-user, single-device-per-profile individuals tracking personal expenses; no multi-role or admin user classes in this scope.
@@ -69,7 +71,7 @@ Local Storage (Room + SQLCipher-encrypted SQLite)
 ```
 
 - **Presentation layer**: Jetpack Compose screens, one `ViewModel` per screen/feature, unidirectional data flow (UI State exposed via `StateFlow`, one-shot events via `Channel`/`SharedFlow`).
-- **Domain layer**: pure Kotlin use cases (e.g., `AddExpenseUseCase`, `CalculateSafeToSpendUseCase`), no Android/Room/Compose imports — keeps business/financial logic unit-testable and framework-independent.
+- **Domain layer**: pure Kotlin use cases (e.g., `AddExpenseUseCase`, `AddDebtUseCase`, `CalculateSafeToSpendUseCase`), no Android/Room/Compose imports — keeps business/financial logic unit-testable and framework-independent.
 - **Data layer**: Repository pattern; Room entities and DAOs live here, never leak into Domain or Presentation. Mappers convert Room entities ↔ domain models.
 - **Dependency direction**: Presentation → Domain → Data. Data never depends on Domain or Presentation.
 
@@ -77,7 +79,7 @@ Local Storage (Room + SQLCipher-encrypted SQLite)
 Every table that stores user-owned data carries a `profileId` foreign key. All DAO queries are scoped by `profileId` at the query level (not filtered post-query in memory). The active profile's ID is held in a single source of truth (session/current-profile holder) injected into repositories — never assumed from UI state alone.
 
 ### 3.3 Concurrency & Reactivity
-- Kotlin Coroutines + Flow throughout; Room DAOs expose `Flow<T>` for observable queries (e.g., dashboard totals update reactively as expenses change).
+- Kotlin Coroutines + Flow throughout; Room DAOs expose `Flow<T>` for observable queries (e.g., dashboard totals, debts, accounts update reactively as records change).
 - Long-running work (OCR processing, scheduled recurring-expense generation, future sync) runs via **WorkManager**, not raw coroutines tied to UI lifecycle.
 
 ### 3.4 Error Handling Strategy
@@ -87,7 +89,7 @@ A shared `Result<T>` / sealed-class wrapper (e.g., `Success`, `Error`, `Loading`
 
 ## 4. Technology Stack
 
-This stack follows the Master PRD's Recommended Technical Direction (§26) directly; items marked *(SRS addition)* are technical decisions this SRS introduces to make the architecture concrete, where the PRD intentionally left implementation detail open.
+This stack follows the Master PRD's Recommended Technical Direction (§27) directly; items marked *(SRS addition)* are technical decisions this SRS introduces to make the architecture concrete, where the PRD intentionally left implementation detail open.
 
 | Concern | Choice | Notes |
 |---|---|---|
@@ -98,12 +100,14 @@ This stack follows the Master PRD's Recommended Technical Direction (§26) direc
 | Encryption | **SQLCipher** (or equivalent approved encrypted-storage library) | Full local DB encryption. |
 | Key Management | **Android Keystore** / StrongBox where available | Encryption keys never stored in plaintext or app code. |
 | Biometrics | **BiometricPrompt** (AndroidX Biometric) | Official API only; app never accesses raw biometric data. |
+| Contact Picker | **`ActivityResultContracts.PickContact`** *(SRS addition)* | Native Android contact picker for Debts & Udhaar with fallback to manual entry. |
+| Localization | **In-App `SessionDataStore` Locale Manager** *(SRS addition)* | Dynamic runtime locale switching for English, Hindi, Marathi, Hinglish/Minglish. |
 | Camera | **CameraX** | Receipt/bill capture. |
 | OCR | **ML Kit Text Recognition** (on-device) | Preferred on-device; cloud OCR optional/future. |
 | Voice | **SpeechRecognizer** / on-device speech API | Voice expense entry, voice Ask Paradox input. |
 | Background Work | **WorkManager** | Recurring-expense generation, scheduled notifications, future sync. |
 | Widgets | **Jetpack Glance** | Home-screen widget (Phase 2). |
-| Local Preferences | **Jetpack DataStore** *(SRS addition)* | App/profile-level settings, non-financial preferences. |
+| Local Preferences | **Jetpack DataStore** *(SRS addition)* | App/profile-level settings, non-financial preferences, selected language. |
 | Dependency Injection | **Hilt** *(SRS addition)* | Standard DI for a layered Android/Compose app; not specified in PRD but required for a maintainable MVVM structure at this scope. |
 | Navigation | **Navigation Compose** *(SRS addition)* | Screen-to-screen navigation graph. |
 | Async/Reactive | **Kotlin Coroutines + Flow** *(SRS addition)* | Underpins Room observability and use-case execution. |
@@ -144,80 +148,81 @@ paradox-android/
 │       │   │   ├── core/
 │       │   │   │   ├── common/                 # Result wrapper, Constants, extension fns
 │       │   │   │   ├── database/               # Room DB class, migrations, TypeConverters
-│       │   │   │   ├── datastore/               # DataStore preferences (settings, AI prefs)
-│       │   │   │   ├── security/                # Keystore, SQLCipher passphrase mgmt, BiometricPrompt wrapper
-│       │   │   │   ├── money/                   # BigDecimal helpers, currency formatting
+│       │   │   │   ├── datastore/              # DataStore preferences (settings, AI prefs, language)
+│       │   │   │   ├── security/               # Keystore, SQLCipher passphrase mgmt, BiometricPrompt wrapper
+│       │   │   │   ├── money/                  # BigDecimal helpers, currency formatting
 │       │   │   │   ├── ui/
-│       │   │   │   │   ├── theme/               # Color, Typography, Shape, Theme.kt
-│       │   │   │   │   └── components/          # Shared composables (buttons, states, charts)
+│       │   │   │   │   ├── theme/              # Color, Typography, Shape, Theme.kt
+│       │   │   │   │   └── components/         # Shared composables (buttons, states, charts, hero cards)
 │       │   │   │   └── util/
 │       │   │
 │       │   │   ├── data/
 │       │   │   │   ├── local/
-│       │   │   │   │   ├── entity/              # Room @Entity classes (per feature)
-│       │   │   │   │   └── dao/                 # Room @Dao interfaces (per feature)
-│       │   │   │   ├── remote/                  # (empty until Phase 5 — sync API clients)
-│       │   │   │   ├── repository/               # Repository implementations
-│       │   │   │   └── mapper/                   # Entity <-> Domain model mappers
+│       │   │   │   │   ├── entity/             # Room @Entity classes (Expense, Debt, Repayment, Account, etc.)
+│       │   │   │   │   └── dao/                # Room @Dao interfaces (per feature)
+│       │   │   │   ├── remote/                 # (empty until Phase 5 — sync API clients)
+│       │   │   │   ├── repository/              # Repository implementations
+│       │   │   │   └── mapper/                  # Entity <-> Domain model mappers
 │       │   │
 │       │   │   ├── domain/
-│       │   │   │   ├── model/                    # Pure Kotlin domain models
-│       │   │   │   ├── repository/                # Repository interfaces
-│       │   │   │   └── usecase/                   # Use cases, grouped by feature subfolder
+│       │   │   │   ├── model/                   # Pure Kotlin domain models
+│       │   │   │   ├── repository/               # Repository interfaces
+│       │   │   │   └── usecase/                  # Use cases, grouped by feature subfolder
 │       │   │
 │       │   │   ├── feature/
-│       │   │   │   ├── onboarding/                # Phase 1
-│       │   │   │   ├── profile/                   # Phase 1 — create/unlock/switch profile
-│       │   │   │   ├── expense/                   # Phase 1 — CRUD, ledger, search/filter/sort
-│       │   │   │   ├── category/                  # Phase 1
-│       │   │   │   ├── paymentmethod/             # Phase 1
-│       │   │   │   ├── budget/                    # Phase 1 — budgets & guardrails
-│       │   │   │   ├── dashboard/                 # Phase 1 — core dashboard + charts
+│       │   │   │   ├── onboarding/               # Phase 1
+│       │   │   │   ├── profile/                  # Phase 1 — create/unlock/switch profile
+│       │   │   │   ├── expense/                  # Phase 1 — CRUD, ledger, search/filter/sort
+│       │   │   │   ├── category/                 # Phase 1
+│       │   │   │   ├── paymentmethod/            # Phase 1
+│       │   │   │   ├── budget/                   # Phase 1 — budgets & guardrails
+│       │   │   │   ├── dashboard/                # Phase 1 — core dashboard + dynamic month selector + charts
 │       │   │   │   │
-│       │   │   │   ├── income/                    # Phase 2
-│       │   │   │   ├── account/                   # Phase 2 — wallets/accounts model
-│       │   │   │   ├── recurring/                 # Phase 2 — recurring expenses & subscriptions
-│       │   │   │   ├── savingsgoal/               # Phase 2
-│       │   │   │   ├── export/                    # Phase 2 — CSV/PDF export
+│       │   │   │   ├── debt/                     # Phase 2 — Debts & Udhaar (Khata) ledger, repayments, contact picker
+│       │   │   │   ├── account/                  # Phase 2 — Wallets/Accounts model & Net Balance Hero
+│       │   │   │   ├── income/                   # Phase 2
+│       │   │   │   ├── recurring/                # Phase 2 — recurring expenses & subscriptions
+│       │   │   │   ├── savingsgoal/              # Phase 2
+│       │   │   │   ├── export/                   # Phase 2 — CSV/PDF export
 │       │   │   │   │
-│       │   │   │   ├── capture/                   # Phase 3
+│       │   │   │   ├── capture/                  # Phase 3
 │       │   │   │   │   ├── voice/
 │       │   │   │   │   ├── ocr/
-│       │   │   │   │   ├── quickadd/              # NL quick add
+│       │   │   │   │   ├── quickadd/             # NL quick add
 │       │   │   │   │   ├── screenshot/
 │       │   │   │   │   ├── sharesheet/
 │       │   │   │   │   ├── smscandidate/
 │       │   │   │   │   └── duplicateguard/
 │       │   │   │   │
-│       │   │   │   ├── askparadox/                # Phase 4 — conversational assistant
-│       │   │   │   ├── insights/                  # Phase 4
+│       │   │   │   ├── askparadox/               # Phase 4 — conversational assistant
+│       │   │   │   ├── insights/                 # Phase 4
 │       │   │   │   │   ├── safetospend/
 │       │   │   │   │   ├── financialhealth/
 │       │   │   │   │   ├── leakhunter/
 │       │   │   │   │   ├── forecast/
 │       │   │   │   │   └── purchasesimulator/
 │       │   │   │   │
-│       │   │   │   ├── sync/                      # Phase 5 — cloud sync, conflict resolution
-│       │   │   │   ├── auth/                      # Phase 5 — email/Google/passkey (only if sync introduced)
-│       │   │   │   ├── backup/                    # Phase 5 — encrypted backup/restore
+│       │   │   │   ├── sync/                     # Phase 5 — cloud sync, conflict resolution
+│       │   │   │   ├── auth/                     # Phase 5 — email/Google/passkey (only if sync introduced)
+│       │   │   │   ├── backup/                   # Phase 5 — encrypted backup/restore
 │       │   │   │   │
-│       │   │   │   ├── engagement/                # Phase 6 (optional) — digest, streaks, vibe indicator
-│       │   │   │   └── settings/                  # All phases — grows incrementally
+│       │   │   │   ├── engagement/               # Phase 6 (optional) — digest, streaks, vibe indicator
+│       │   │   │   └── settings/                 # All phases — in-app language picker, security prefs
 │       │   │   │
-│       │   │   └── widget/                        # Phase 2 — Glance widget
+│       │   │   └── widget/                       # Phase 2 — Glance widget
 │       │   │
 │       │   └── res/
-│       │       ├── drawable/  ├── mipmap/  ├── values/  └── values-*/   # localization
+│       │       ├── drawable/  ├── mipmap/  ├── values/  └── values-*/   # localization (en, hi, mr, etc.)
 │       │
-│       ├── test/                                  # Unit tests — mirrors domain/ and data/ package structure
+│       ├── test/                                 # Unit tests — mirrors domain/ and data/ package structure
 │       │   └── java/com/paradox/app/
 │       │       ├── domain/usecase/...
 │       │       └── data/repository/...
 │       │
-│       └── androidTest/                           # Instrumented + Compose UI tests
+│       └── androidTest/                          # Instrumented + Compose UI tests
 │           └── java/com/paradox/app/
-│               ├── data/local/                    # Room DAO tests, migration tests
-│               └── feature/.../                   # Compose UI tests per feature
+│               ├── data/local/                   # Room DAO tests, migration tests
+│               └── feature/.../                  # Compose UI tests per feature
 │
 ├── build.gradle.kts
 ├── settings.gradle.kts
@@ -247,12 +252,14 @@ Requirement IDs: `FR-P<phase>-<number>`.
 | FR-P1-009 | System shall support daily/weekly/monthly/yearly and category-specific budgets with status: On Track / Near Limit (default ~80% threshold) / Over Budget. |
 | FR-P1-010 | System shall support a "soft guardrail" warning when spending approaches or is projected to exceed a budget limit. |
 | FR-P1-011 | System shall present a dashboard showing total/current-period spending, remaining budget, budget status, recent expenses, top categories, category breakdown, and spending trend — using only real stored data. |
-| FR-P1-012 | System shall perform all financial calculations using exact/fixed-precision decimal arithmetic. |
+| FR-P1-012 | System shall perform all financial calculations using exact/fixed-precision decimal arithmetic (`BigDecimal`). |
 | FR-P1-013 | Core expense recording, viewing, and management shall function fully offline. |
 | FR-P1-014 | Every core screen shall implement Loading, Empty, Success, Error, and Offline states. |
 | FR-P1-015 | Destructive actions (delete expense, delete category with dependents, delete profile) shall require explicit confirmation. |
 | FR-P1-016 | System shall contain no hardcoded or fake financial data in production builds. |
 | FR-P1-017 | Local financial data shall be encrypted at rest; encryption keys shall be managed via Android Keystore, never stored in plaintext. |
+| FR-P1-018 | System shall provide an interactive Month & Period Selector dropdown on the dashboard supporting navigation across the past 12+ months with instant reactive recalculations of spending, spending velocity, top categories, and budget adherence. |
+| FR-P1-019 | System shall support in-app multilingual localization (English `en`, Hindi `hi`, Marathi `mr`, Hinglish / Minglish `hi-Latn`) persisted via `SessionDataStore` and dynamically applied without application restarts. |
 
 ### 6.2 Phase 2 — Native Convenience & Financial Foundation
 
@@ -263,11 +270,16 @@ Requirement IDs: `FR-P<phase>-<number>`.
 | FR-P2-003 | System shall register a Share Sheet target that routes supported shared text/images into the assisted-entry pipeline. |
 | FR-P2-004 | System shall support configurable notifications: budget warnings, recurring-payment reminders, Safe-to-Spend warnings, savings milestones, transaction review prompts. |
 | FR-P2-005 | System shall support income records (salary, freelance, business/personal, other) and calculate total income, total expenses, net cash flow, savings amount, and savings rate from real recorded data. |
-| FR-P2-006 | System shall support an accounts/wallets model (cash, bank, card, wallet) without claiming a balance unless sufficient recorded data or an approved integration exists. |
+| FR-P2-006 | System shall support a multi-account wallets model (Cash, Bank, Debit/Credit Card, Digital Wallet, Savings Vault, Custom) featuring a real-time Net Balance Hero card, custom color themes, and primary account defaults without claiming unrecorded balances. |
 | FR-P2-007 | System shall support recurring expenses (weekly/monthly/yearly) with upcoming-payment visibility and monthly-normalized commitment calculation. |
 | FR-P2-008 | System shall support savings goals: name, target amount, current amount, currency, target date, contributions/withdrawals, progress, and estimated completion date. |
 | FR-P2-009 | System shall support CSV/PDF/spreadsheet-compatible export of transaction and report data. |
-| FR-P2-010 | System shall support light/dark theme and improved responsive layouts for a practical range of phone sizes. |
+| FR-P2-010 | System shall support light/dark theme and improved responsive layouts with consistent 20dp spacing. |
+| FR-P2-011 | System shall support a Debts & Udhaar (Khata) ledger tracking Lent (receivable) and Borrowed (payable) records with contact name, phone number, initial amount, remaining balance, currency, due date, category, and notes. |
+| FR-P2-012 | System shall integrate with native Android contact picker (`PickContact` / `ContactsContract`) to auto-populate contact details with permission safety and immediate fallback to manual entry if denied. |
+| FR-P2-013 | System shall support recording partial and full repayments (`RepaymentEntity`), dynamically deducting the repayment amount from the debt's remaining balance using exact `BigDecimal` arithmetic. |
+| FR-P2-014 | System shall track debt settlement status (Active vs. Settled), provide quick settlement actions, and guard against deleting active debts without confirmation. |
+| FR-P2-015 | System shall provide spacious Material 3 bottom sheets for debt and repayment entry with quick amount selector chips (`+100`, `+500`, `+1000`, `+2000`) and date pickers. |
 
 ### 6.3 Phase 3 — Assisted Capture
 
@@ -362,15 +374,17 @@ Full schema (column types, indices, migrations) belongs in a separate technical 
 | PaymentMethod | id, profileId, type, label, isCustom | profileId | 1 |
 | Expense | id, profileId, title, amount, currency, categoryId, paymentMethodId, date, notes, recurringFlag, source, attachmentRef, createdAt, updatedAt | profileId | 1 |
 | Budget | id, profileId, type(daily/weekly/monthly/yearly/category), amount, categoryId?, thresholdPct | profileId | 1 |
+| Debt | id, profileId, type(LENT/BORROWED), contactName, contactPhone, initialAmount, remainingBalance, currency, dueDate, notes, categoryId?, isSettled, createdAt, updatedAt | profileId | 2 |
+| Repayment | id, debtId, profileId, amount, currency, date, notes, createdAt | profileId | 2 |
 | Income | id, profileId, source, amount, currency, date, notes | profileId | 2 |
-| Account | id, profileId, type, label, trackedBalance? | profileId | 2 |
+| Account | id, profileId, type, label, colorHex, isPrimary, trackedBalance? | profileId | 2 |
 | RecurringExpense | id, profileId, expenseTemplate, frequency, nextDueDate | profileId | 2 |
 | SavingsGoal | id, profileId, name, targetAmount, currentAmount, currency, targetDate, contributions[], withdrawals[] | profileId | 2 |
 | CaptureCandidate | id, profileId, sourceType, rawPayload, extractedFields, status(pending/confirmed/ignored) | profileId | 3 |
 | AiInsightLog | id, profileId, type(healthScore/leak/forecast/etc.), payload, generatedAt, isEstimate | profileId | 4 |
 | SyncQueueItem | id, profileId, entityRef, operation, status | profileId | 5 |
 
-All monetary fields use fixed-precision decimal storage (not floating point). All tables carry `profileId` except `Profile` itself.
+All monetary fields use fixed-precision decimal storage (`BigDecimal`, not floating point). All tables carry `profileId` except `Profile` itself.
 
 ---
 
@@ -516,6 +530,7 @@ This section defines navigation *behavior*; visual/UI specification remains in `
 
 | Permission / Capability | Feature | Phase | Required/Optional | Denial Behavior |
 |---|---|---|---|---|
+| Contacts (`READ_CONTACTS` / Contact Picker) | Debt & Udhaar contact selection | 2 | Optional | User can manually type contact name and phone number; debt creation remains fully functional. |
 | Camera | Receipt/bill scanning | 3 | Optional | Manual entry and all other features remain fully usable; capture screen shows a clear explanation and a path to manual entry. |
 | Microphone | Voice expense entry, voice Ask Paradox input | 3 / 4 | Optional | Voice entry point is hidden/disabled with explanation; manual and text-based entry remain available. |
 | Notifications (`POST_NOTIFICATIONS` on Android 13+) | Budget warnings, reminders, Safe-to-Spend alerts | 2 | Optional | In-app equivalents (dashboard indicators) remain visible; no functional loss beyond the notification itself. |
@@ -544,7 +559,7 @@ This section adds implementation constraints on top of the entity overview in §
 
 ### 15.2 Expense
 - Primary key: `id`. Foreign keys: `profileId` → Profile (required, indexed), `categoryId` → Category (required), `paymentMethodId` → PaymentMethod (required).
-- `amount`: required, fixed-precision decimal, must be > 0 (see §16.1).
+- `amount`: required, fixed-precision decimal (`BigDecimal`), must be > 0 (see §16.1).
 - `currency`: required, ISO 4217-compatible code.
 - `date`: required, not in the future (see §16.1).
 - Update behavior: edits update `updatedAt`; `createdAt` is immutable.
@@ -571,8 +586,12 @@ This section adds implementation constraints on top of the entity overview in §
 - Primary key: `id`. Foreign key: `profileId` (required, indexed).
 - `amount`: required, fixed-precision decimal, > 0. `currency`: required. `date`: required.
 
-### 15.7 Account (Phase 2)
+### 15.7 Account & Wallets (Phase 2)
 - Primary key: `id`. Foreign key: `profileId` (required, indexed).
+- `type`: constrained enum (Cash, Bank Account, Debit Card, Credit Card, Digital Wallet, Savings, Custom).
+- `label`: required, non-empty.
+- `colorHex`: valid hex color string (e.g., `#4CAF50`).
+- `isPrimary`: boolean flag indicating the default selected account for transactions.
 - `trackedBalance`: nullable — the system must never display a balance unless it is derived from sufficient recorded data or an approved integration (reinforces FR-P2-006).
 
 ### 15.8 RecurringExpense (Phase 2)
@@ -592,6 +611,27 @@ This section adds implementation constraints on top of the entity overview in §
 - Primary key: `id`. Foreign key: `profileId` (required).
 - `isEstimate`: required boolean — every AI-derived record must be explicitly flagged as such (reinforces FR-P4-008).
 - Not a source of truth for financial totals; always derived from, never a substitute for, the underlying Expense/Income/Budget records.
+
+### 15.12 Debts & Repayments (Phase 2)
+- **Debt (`DebtEntity`)**:
+  - Primary key: `id`. Foreign key: `profileId` (required, indexed).
+  - `type`: constrained enum (`LENT` / `BORROWED`).
+  - `contactName`: required, non-empty.
+  - `contactPhone`: optional.
+  - `initialAmount`: required, fixed-precision decimal (`BigDecimal`), strictly > 0.
+  - `remainingBalance`: required, fixed-precision decimal (`BigDecimal`), ≥ 0.
+  - `currency`: required, ISO 4217 code.
+  - `dueDate`: optional epoch timestamp.
+  - `notes`: optional text.
+  - `isSettled`: boolean (true when `remainingBalance == 0`).
+  - `createdAt`, `updatedAt`: timestamps.
+- **Repayment (`RepaymentEntity`)**:
+  - Primary key: `id`. Foreign keys: `debtId` → Debt (required, indexed), `profileId` → Profile (required, indexed).
+  - `amount`: required, fixed-precision decimal (`BigDecimal`), strictly > 0.
+  - `date`: required timestamp.
+  - `notes`: optional text.
+  - `createdAt`: timestamp.
+  - Cascading behavior: deleting a Debt record cascades to its associated Repayment records.
 
 All entities above inherit the global rules already stated in §8: fixed-precision decimal for money, `profileId` isolation on every table except Profile itself, and `createdAt`/`updatedAt` timestamps where the entity is mutable.
 
@@ -624,6 +664,13 @@ All entities above inherit the global rules already stated in §8: fixed-precisi
 - Current amount: required, ≥ 0, never permitted to exceed target amount through direct edit (only via recorded contributions, per §8's `contributions[]`/`withdrawals[]`).
 - Target date: required, must be a valid date; the system does not impose an arbitrary minimum/maximum timeframe.
 - Goal name: required, non-empty.
+
+### 16.5 Debts & Repayments
+- **Debt Initial Amount**: required, strictly > 0.
+- **Debt Contact Name**: required, non-empty string.
+- **Debt Remaining Balance**: strictly non-negative, must not exceed `initialAmount` unless explicit interest/fee recording is introduced.
+- **Repayment Amount**: required, strictly > 0, and must not exceed the current `remainingBalance` of the associated Debt.
+- **Repayment Date**: required, must not be in the future.
 
 No field above receives an arbitrary length/value limit beyond what is stated; where a concrete limit is genuinely needed, it is an implementation detail to be documented in code, not invented here.
 
@@ -912,9 +959,31 @@ Concise format: Actor, Preconditions, Main Flow, Alternative/Failure Flow, Postc
 **Create Budget / View Budget Status**
 - Main Flow: User defines a budget (type, amount, optional category) → system tracks spend against it and surfaces On Track/Near Limit/Over Budget status (FR-P1-009) on the dashboard/budget screen.
 
-**View Dashboard**
-- Main Flow: User navigates to the dashboard → system loads real stored data (never fabricated, FR-P1-016) and renders totals, budget status, recent expenses, and trend.
-- Failure Flow: No data yet → Empty state shown, not an error.
+**View Dashboard & Select Month**
+- Main Flow: User navigates to the dashboard → system loads real stored data for the active/selected month (never fabricated, FR-P1-016) and renders totals, budget status, velocity chart, and top categories. User can open the month dropdown selector to switch to any prior month, triggering instant reactive recalculation.
+- Failure Flow: No data yet for that month → Empty state shown, not an error.
+
+**Change App Language**
+- Actor: Unlocked user.
+- Main Flow: User opens Settings → Language → selects preferred language (English, Hindi, Marathi, Hinglish/Minglish) → preference is stored in `SessionDataStore` and UI updates immediately.
+- Postconditions: App renders strings in the selected locale.
+
+**Record Debt (Lent / Borrowed)**
+- Actor: Unlocked user.
+- Main Flow: User opens Debts screen → taps Add Debt → selects Lent or Borrowed → selects contact via native contact picker (or enters manually) → enters amount, currency, optional due date, category, and notes → validates and saves.
+- Failure Flow: Amount ≤ 0 or contact name empty → inline validation error shown; Contact permission denied → falls back seamlessly to manual contact name entry.
+- Postconditions: `DebtEntity` is persisted, scoped to active profile, and reflected in Debts list and Net Balance calculations.
+
+**Record Debt Repayment**
+- Actor: Unlocked user.
+- Main Flow: User selects an active Debt → taps Record Repayment → enters repayment amount (supports quick chips) and date → system validates amount ≤ remaining balance → saves `RepaymentEntity` and updates `DebtEntity.remainingBalance`.
+- Failure Flow: Repayment amount > remaining balance → blocked with inline error.
+- Postconditions: Repayment saved; if remaining balance reaches 0, debt is marked `isSettled = true`.
+
+**Settle Debt**
+- Actor: Unlocked user.
+- Main Flow: User selects an active debt and chooses "Mark as Settled" → full remaining balance is logged as a settlement repayment or cleared → status transitions to Settled.
+- Postconditions: Debt is marked `isSettled = true`, remaining balance is 0.
 
 **Handle Offline Mode**
 - Main Flow: User uses core features with no connectivity → all Phase 1–4 core functions behave identically to online use; any sync-dependent (Phase 5+) UI shows an offline indicator rather than failing silently.
@@ -942,7 +1011,7 @@ Concise format: Actor, Preconditions, Main Flow, Alternative/Failure Flow, Postc
 
 ## 31. Requirements Traceability Matrix
 
-Covers the Phase 1 capabilities explicitly required for traceability; later-phase features are traceable via their FR-IDs (§6.2–§6.6) and the corresponding use cases in §30 once they reach implementation.
+Covers the Phase 1 and Phase 2 capabilities explicitly required for traceability; later-phase features are traceable via their FR-IDs (§6.2–§6.6) and the corresponding use cases in §30 once they reach implementation.
 
 | User Story / Use Case | Functional Requirement | Acceptance Criteria (Given/When/Then) | Test Coverage |
 |---|---|---|---|
@@ -958,14 +1027,18 @@ Covers the Phase 1 capabilities explicitly required for traceability; later-phas
 | Payment Methods | FR-P1-007, §15.4 | Given a payment method with existing expenses, when the user attempts to delete it, then deletion is blocked until expenses are reassigned. | Unit, DB |
 | Search/Filter/Sort | FR-P1-008 | Given a set of expenses, when the user applies a combination of filters and a sort order, then only matching expenses appear, correctly ordered, scoped to the active profile. | UI, Unit (query logic) |
 | Budgets | FR-P1-009, FR-P1-010, §16.3 | Given a defined budget, when spend crosses the configured threshold, then the budget status updates to Near Limit/Over Budget accordingly, using exact decimal arithmetic. | Unit (budget calculation), UI |
-| Dashboard | FR-P1-011 | Given real stored expense/budget data, when the user opens the dashboard, then all figures shown are derived from that real data — never hardcoded or fabricated. | UI, Unit (no-fake-data check) |
-| Offline Operation | FR-P1-013 | Given no network connectivity, when the user performs any core expense/budget action, then the action completes exactly as it would online. | UI (offline-mode test) |
+| Dashboard & Month Filter | FR-P1-011, FR-P1-018 | Given real stored expense/budget data and a selected month, when the user changes the month dropdown, then all metrics, velocity charts, and category allocations recalculate for that month. | UI, Unit (no-fake-data check, date math) |
+| In-App Localization | FR-P1-019 | Given the language settings sheet, when the user picks English/Hindi/Marathi/Hinglish, then the selection is saved to DataStore and applied dynamically. | Unit (DataStore locale flow), UI |
+| Wallets & Net Balance | FR-P2-006 | Given registered accounts, when the user views the Wallets screen, then the Net Balance Hero displays the combined balance with liquid vs credit breakdown. | Unit (balance calculation), UI |
+| Debts & Udhaar (Khata) | FR-P2-011, FR-P2-012, FR-P2-015 | Given a lent/borrowed amount and contact, when saved via the bottom sheet, then `DebtEntity` is persisted and reflected in the active debt ledger. | DB (DAO), Unit (use case), UI |
+| Debt Repayments | FR-P2-013, §16.5 | Given an active debt, when a valid partial or full repayment is saved, then remaining balance is decremented and `RepaymentEntity` is recorded. | DB, Unit (repayment math) |
+| Settle Debt | FR-P2-014 | Given an active debt, when settled in full, then remaining balance becomes 0 and status updates to Settled. | DB, Unit |
+| Offline Operation | FR-P1-013 | Given no network connectivity, when the user performs any core expense/budget/debt action, then the action completes exactly as it would online. | UI (offline-mode test) |
 | Database Encryption | FR-P1-017, §12.2, §24 | Given the local database file, when inspected outside the app without the correct key, then its contents are not readable in plaintext. | Security test |
 | Profile Data Isolation | FR-P1-003, §3.2 | Given two profiles with data, when queries are executed for Profile A, then no data belonging to Profile B is ever returned, at the data-layer query level (not just UI filtering). | DB (isolation test) — maps directly to the PRD's critical zero-leakage metric |
-| Destructive Actions | FR-P1-015 | Given a destructive action (delete expense/category/profile) is initiated, when the user has not yet confirmed, then the action has not been performed; confirmation is required to proceed. | UI (confirmation flow) |
+| Destructive Actions | FR-P1-015 | Given a destructive action (delete expense/category/profile/debt) is initiated, when the user has not yet confirmed, then the action has not been performed; confirmation is required to proceed. | UI (confirmation flow) |
 | Error Handling | §17 | Given any error category in §17, when it occurs, then the user sees the defined generic/appropriate message and no sensitive detail is exposed, while the error is logged without sensitive content. | Unit, UI (error-state rendering), Security (log-content check) |
 
 ---
 
-
-**Document Status:** Revision 1.1 — expanded with authentication/app-lock specification, navigation and permission requirements, implementation-level data constraints, validation rules, error taxonomy, edge cases, Android lifecycle and WorkManager requirements, an expanded money/currency specification, data-lifecycle and attachment-storage rules, an expanded security/privacy model, measurable accessibility criteria, use cases, a requirements traceability matrix, a Definition of Done, requirement priority classification, and build/release requirements. All Phase 1–6 content, technology stack, and folder structure from Revision 1.0 are preserved unchanged except FR-P1-002, which was extended (not contradicted) to reflect the broader authentication model in §12. This remains the master technical specification for the project; `DESIGN_SYSTEM.md` and `AGENTS.md` remain separate per §26.
+**Document Status:** Revision 1.2 — fully updated to document Debts & Udhaar (Khata) Ledger system (lent/borrowed, contact picker integration, repayment tracking, settlement status, Material 3 modal bottom sheets), Dashboard Dynamic Month & Period Selector with reactive recalculations across 12+ months, Wallets & Accounts architecture with real-time Net Balance Hero card, and In-App Multilingual Localization (English, Hindi, Marathi, Hinglish/Minglish) backed by SessionDataStore. Based on `PARADOX_MASTER_PRD.md` (v2.1). This remains the master technical specification for the project; `DESIGN_SYSTEM.md` and `AGENTS.md` remain separate per §26.

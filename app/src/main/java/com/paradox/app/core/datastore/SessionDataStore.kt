@@ -25,6 +25,7 @@ class SessionDataStore @Inject constructor(
     private val preferredCurrencyKey = stringPreferencesKey("preferred_currency")
     private val themeModeKey = stringPreferencesKey("theme_mode")
     private val themePaletteKey = stringPreferencesKey("theme_palette")
+    private val appLanguageKey = stringPreferencesKey("app_language")
 
     val activeProfileId: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[activeProfileIdKey]
@@ -44,6 +45,10 @@ class SessionDataStore @Inject constructor(
 
     val themePalette: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[themePaletteKey] ?: "SLATE"
+    }
+
+    val appLanguage: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[appLanguageKey] ?: "en"
     }
 
     suspend fun setActiveProfileId(profileId: String?) {
@@ -77,6 +82,12 @@ class SessionDataStore @Inject constructor(
     suspend fun setThemePalette(palette: String) {
         context.dataStore.edit { preferences ->
             preferences[themePaletteKey] = palette
+        }
+    }
+
+    suspend fun setAppLanguage(languageCode: String) {
+        context.dataStore.edit { preferences ->
+            preferences[appLanguageKey] = languageCode
         }
     }
 }

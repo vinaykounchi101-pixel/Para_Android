@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -25,12 +26,14 @@ import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.outlined.AccountBalanceWallet
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -45,15 +48,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.paradox.app.core.money.CurrencyFormatter
+import com.paradox.app.core.money.Money
 import com.paradox.app.core.ui.components.ConfirmDeleteDialog
 import com.paradox.app.core.ui.components.ParadoxCard
 import com.paradox.app.core.ui.components.StateContainer
 import com.paradox.app.domain.model.Account
 import com.paradox.app.domain.model.AccountType
+import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,7 +79,10 @@ fun AccountsScreen(
                 title = {
                     Text(
                         text = "Accounts & Wallets",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
                     )
                 },
                 navigationIcon = {
@@ -89,46 +99,79 @@ fun AccountsScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = onNavigateToAddAccount,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = CircleShape
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Account"
-                )
-            }
-        }
+                shape = RoundedCornerShape(16.dp),
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                },
+                text = {
+                    Text(
+                        text = "Add Account",
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                },
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         StateContainer(
             isLoading = state.isLoading,
             data = state.accounts,
-            emptyMessage = "No accounts found. Add cash wallets, bank accounts, or cards to manage balances.",
+            emptyMessage = "No accounts found. Add cash wallets, bank accounts, or cards to track balances.",
             isEmpty = { it.isEmpty() },
             errorMessage = state.errorMessage,
             onRetry = { },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-        ) { _ ->
+        ) { accounts ->
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(horizontal = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 item {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Your Wallets & Accounts",
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
-                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    AccountsSummaryHeroCard(accounts = accounts)
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "ACTIVE WALLETS & ACCOUNTS",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.5.sp,
+                                letterSpacing = 0.8.sp
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "${accounts.size} Total",
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
 
                 items(
-                    items = state.accounts,
+                    items = accounts,
                     key = { it.id }
                 ) { account ->
                     AccountCard(
@@ -139,7 +182,7 @@ fun AccountsScreen(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(80.dp))
+                    Spacer(modifier = Modifier.height(88.dp))
                 }
             }
         }
@@ -148,13 +191,84 @@ fun AccountsScreen(
     accountToDelete?.let { account ->
         ConfirmDeleteDialog(
             title = "Delete Account?",
-            message = "Are you sure you want to delete ${account.name}?",
+            message = "Are you sure you want to delete ${account.name}? This will remove it from your wallets list.",
             onConfirm = {
                 viewModel.deleteAccount(account.id)
                 accountToDelete = null
             },
             onDismiss = { accountToDelete = null }
         )
+    }
+}
+
+@Composable
+private fun AccountsSummaryHeroCard(
+    accounts: List<Account>,
+    modifier: Modifier = Modifier
+) {
+    val totalAmount = accounts.fold(BigDecimal.ZERO) { acc, a -> acc.add(a.initialBalance.amount) }
+    val currency = accounts.firstOrNull()?.currency ?: "INR"
+    val totalMoney = Money(totalAmount, currency)
+
+    Surface(
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLowest,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        shadowElevation = 1.dp,
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(22.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "TOTAL NET BALANCE",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+                ) {
+                    Text(
+                        text = "${accounts.size} Sources",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 11.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = CurrencyFormatter.format(totalMoney),
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontSize = 34.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = (-0.5).sp
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Real-time balance across bank accounts, UPI, and cash pockets",
+                style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
@@ -180,7 +294,11 @@ private fun AccountCard(
         MaterialTheme.colorScheme.primary
     }
 
-    ParadoxCard(
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLowest,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        shadowElevation = 0.5.dp,
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
@@ -188,19 +306,19 @@ private fun AccountCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(18.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
                 modifier = Modifier.weight(1f)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(46.dp)
-                        .clip(CircleShape)
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(14.dp))
                         .background(accountColor.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center
                 ) {
@@ -212,58 +330,89 @@ private fun AccountCard(
                     )
                 }
 
-                Column {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = account.name,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.5.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        Text(
-                            text = account.name,
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
-                        )
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh
+                        ) {
+                            Text(
+                                text = account.type.displayName,
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 10.5.sp,
+                                    fontWeight = FontWeight.Medium
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+
                         if (account.isDefault) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
-                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                             ) {
                                 Text(
                                     text = "Default",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.primary
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = 10.5.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    ),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                 )
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = account.type.displayName,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
                     text = CurrencyFormatter.format(account.initialBalance),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
-                IconButton(
-                    onClick = onDelete,
-                    modifier = Modifier.size(28.dp)
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.6f),
+                    modifier = Modifier.size(32.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                        modifier = Modifier.size(18.dp)
-                    )
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
             }
         }

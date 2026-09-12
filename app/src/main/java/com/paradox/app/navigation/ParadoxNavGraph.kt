@@ -14,6 +14,7 @@ import com.paradox.app.feature.backup.BackupScreen
 import com.paradox.app.feature.budget.BudgetListScreen
 import com.paradox.app.feature.category.CategoryManagementScreen
 import com.paradox.app.feature.dashboard.DashboardScreen
+import com.paradox.app.feature.debt.DebtScreen
 import com.paradox.app.feature.engagement.EngagementScreen
 import com.paradox.app.feature.engagement.SplitExpenseScreen
 import com.paradox.app.feature.expense.AddEditExpenseScreen
@@ -111,6 +112,9 @@ fun ParadoxNavGraph(
                 },
                 onNavigateToEngagement = {
                     navController.navigate(Screen.Engagement.route)
+                },
+                onNavigateToDebts = {
+                    navController.navigate(Screen.Debts.route)
                 }
             )
         }
@@ -177,6 +181,7 @@ fun ParadoxNavGraph(
                 onNavigateToSync = { navController.navigate(Screen.SyncSettings.route) },
                 onNavigateToEngagement = { navController.navigate(Screen.Engagement.route) },
                 onNavigateToInsights = { navController.navigate(Screen.InsightsHub.route) },
+                onNavigateToDebts = { navController.navigate(Screen.Debts.route) },
                 onNavigateToDashboard = {
                     navController.navigate(Screen.Dashboard.route) {
                         popUpTo(Screen.Dashboard.route) { inclusive = true }
@@ -415,6 +420,13 @@ fun ParadoxNavGraph(
 
         composable(Screen.SplitExpense.route) {
             SplitExpenseScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // Debts & Udhaar Ledger
+        composable(Screen.Debts.route) {
+            DebtScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }

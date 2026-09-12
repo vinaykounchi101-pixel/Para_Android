@@ -3,6 +3,7 @@ package com.paradox.app.domain.usecase.backup
 import com.paradox.app.domain.repository.AccountRepository
 import com.paradox.app.domain.repository.BudgetRepository
 import com.paradox.app.domain.repository.CategoryRepository
+import com.paradox.app.domain.repository.DebtRepository
 import com.paradox.app.domain.repository.ExpenseRepository
 import com.paradox.app.domain.repository.IncomeRepository
 import com.paradox.app.domain.repository.PaymentMethodRepository
@@ -30,13 +31,14 @@ class EncryptedBackupUseCase @Inject constructor(
     private val paymentMethodRepository: PaymentMethodRepository,
     private val accountRepository: AccountRepository,
     private val recurringRepository: RecurringExpenseRepository,
-    private val savingsGoalRepository: SavingsGoalRepository
+    private val savingsGoalRepository: SavingsGoalRepository,
+    private val debtRepository: DebtRepository
 ) {
     suspend operator fun invoke(profileId: String, passphrase: String): String {
         require(passphrase.length >= 6) { "Backup passphrase must be at least 6 characters" }
 
         val rootJson = JSONObject()
-        rootJson.put("version", 1)
+        rootJson.put("version", 3)
         rootJson.put("profileId", profileId)
         rootJson.put("exportedAt", Instant.now().toString())
 
@@ -55,7 +57,89 @@ class EncryptedBackupUseCase @Inject constructor(
         }
         rootJson.put("categories", catArray)
 
-        // 2. Expenses
+        // 2. Payment Methods
+        val paymentMethods = paymentMethodRepository.getPaymentMethods(profileId).first()
+        val pmArray = JSONArray()
+        for (pm in paymentMethods) {
+            val obj = JSONObject()
+            obj.put("id", pm.id)
+            obj.put("type", pm.type.name)
+            obj.put("label", pm.label)
+            obj.put("isCustom", pm.isCustom)
+            pmArray.put(obj)
+        }
+        rootJson.put("paymentMethods", pmArray)
+
+        // 3. Accounts / Wallets
+        val accounts = accountRepository.getAccounts(profileId).first()
+        val accArray = JSONArray()
+        for (a in accounts) {
+            val obj = JSONObject()
+            obj.put("id", a.id)
+            obj.put("name", a.name)
+            obj.put("type", a.type.name)
+            obj.put("currency", a.currency)
+            obj.put("initialBalance", a.initialBalance.amount.toPlainString())
+            obj.put("colorHex", a.colorHex)
+            obj.put("iconName", a.iconName)
+            obj.put("isDefault", a.isDefault)
+            accArray.put(obj)
+        }
+        rootJson.put("accounts", accArray)
+
+        // 4. Budgets
+        val budgets = budgetRepository.getAllBudgets(profileId).first()
+        val budArray = JSONArray()
+        for (b in budgets) {
+            val obj = JSONObject()
+            obj.put("id", b.id)
+            obj.put("type", b.type.name)
+            obj.put("amount", b.limit.amount.toPlainString())
+            obj.put("currency", b.limit.currencyCode)
+            obj.put("categoryId", b.categoryId ?: "")
+            obj.put("thresholdPct", b.thresholdPct)
+            budArray.put(obj)
+        }
+        rootJson.put("budgets", budArray)
+
+        // 5. Recurring Expenses / Subscriptions
+        val recurring = recurringRepository.getAllRecurring(profileId).first()
+        val recArray = JSONArray()
+        for (r in recurring) {
+            val obj = JSONObject()
+            obj.put("id", r.id)
+            obj.put("title", r.title)
+            obj.put("amount", r.amount.amount.toPlainString())
+            obj.put("currency", r.currency)
+            obj.put("categoryId", r.categoryId)
+            obj.put("paymentMethodId", r.paymentMethodId)
+            obj.put("frequency", r.frequency.name)
+            obj.put("startDate", r.startDate.toString())
+            obj.put("nextDueDate", r.nextDueDate.toString())
+            obj.put("isActive", r.isActive)
+            obj.put("notes", r.notes ?: "")
+            recArray.put(obj)
+        }
+        rootJson.put("recurringExpenses", recArray)
+
+        // 6. Savings Goals
+        val goals = savingsGoalRepository.getAllGoals(profileId).first()
+        val goalArray = JSONArray()
+        for (g in goals) {
+            val obj = JSONObject()
+            obj.put("id", g.id)
+            obj.put("name", g.name)
+            obj.put("targetAmount", g.targetAmount.amount.toPlainString())
+            obj.put("currentAmount", g.currentAmount.amount.toPlainString())
+            obj.put("currency", g.currency)
+            obj.put("targetDate", g.targetDate.toString())
+            obj.put("colorHex", g.colorHex)
+            obj.put("iconName", g.iconName)
+            goalArray.put(obj)
+        }
+        rootJson.put("savingsGoals", goalArray)
+
+        // 7. Expenses
         val expenses = expenseRepository.getAllExpenses(profileId).first()
         val expArray = JSONArray()
         for (e in expenses) {
@@ -74,7 +158,7 @@ class EncryptedBackupUseCase @Inject constructor(
         }
         rootJson.put("expenses", expArray)
 
-        // 3. Incomes
+        // 8. Incomes
         val incomes = incomeRepository.getAllIncomes(profileId).first()
         val incArray = JSONArray()
         for (i in incomes) {
@@ -89,54 +173,39 @@ class EncryptedBackupUseCase @Inject constructor(
         }
         rootJson.put("incomes", incArray)
 
-        // 4. Budgets
-        val budgets = budgetRepository.getAllBudgets(profileId).first()
-        val budArray = JSONArray()
-        for (b in budgets) {
+        // 9. Debts & Udhaar Ledger
+        val debts = debtRepository.getAllDebts(profileId).first()
+        val debtArray = JSONArray()
+        for (d in debts) {
             val obj = JSONObject()
-            obj.put("id", b.id)
-            obj.put("type", b.type.name)
-            obj.put("amount", b.limit.amount.toPlainString())
-            obj.put("currency", b.limit.currencyCode)
-            obj.put("categoryId", b.categoryId ?: "")
-            obj.put("thresholdPct", b.thresholdPct)
-            budArray.put(obj)
-        }
-        rootJson.put("budgets", budArray)
+            obj.put("id", d.id)
+            obj.put("personName", d.personName)
+            obj.put("personContactNumber", d.personContactNumber ?: "")
+            obj.put("debtType", d.debtType.name)
+            obj.put("initialAmount", d.initialAmount.amount.toPlainString())
+            obj.put("remainingAmount", d.remainingAmount.amount.toPlainString())
+            obj.put("currency", d.initialAmount.currencyCode)
+            obj.put("dueDate", d.dueDate?.toString() ?: "")
+            obj.put("notes", d.notes ?: "")
+            obj.put("status", d.status.name)
+            obj.put("reminderEnabled", d.reminderEnabled)
 
-        // 5. Accounts
-        val accounts = accountRepository.getAccounts(profileId).first()
-        val accArray = JSONArray()
-        for (a in accounts) {
-            val obj = JSONObject()
-            obj.put("id", a.id)
-            obj.put("name", a.name)
-            obj.put("type", a.type.name)
-            obj.put("currency", a.currency)
-            obj.put("initialBalance", a.initialBalance.amount.toPlainString())
-            obj.put("colorHex", a.colorHex)
-            obj.put("iconName", a.iconName)
-            obj.put("isDefault", a.isDefault)
-            accArray.put(obj)
+            // Repayments for this debt
+            val repayments = debtRepository.getRepaymentsForDebt(profileId, d.id).first()
+            val repArray = JSONArray()
+            for (rep in repayments) {
+                val repObj = JSONObject()
+                repObj.put("id", rep.id)
+                repObj.put("amount", rep.amount.amount.toPlainString())
+                repObj.put("currency", rep.amount.currencyCode)
+                repObj.put("repaymentDate", rep.repaymentDate.toString())
+                repObj.put("notes", rep.notes ?: "")
+                repArray.put(repObj)
+            }
+            obj.put("repayments", repArray)
+            debtArray.put(obj)
         }
-        rootJson.put("accounts", accArray)
-
-        // 6. Savings Goals
-        val goals = savingsGoalRepository.getAllGoals(profileId).first()
-        val goalArray = JSONArray()
-        for (g in goals) {
-            val obj = JSONObject()
-            obj.put("id", g.id)
-            obj.put("name", g.name)
-            obj.put("targetAmount", g.targetAmount.amount.toPlainString())
-            obj.put("currentAmount", g.currentAmount.amount.toPlainString())
-            obj.put("currency", g.currency)
-            obj.put("targetDate", g.targetDate.toString())
-            obj.put("colorHex", g.colorHex)
-            obj.put("iconName", g.iconName)
-            goalArray.put(obj)
-        }
-        rootJson.put("savingsGoals", goalArray)
+        rootJson.put("debts", debtArray)
 
         // Encrypt with AES-256-GCM via PBKDF2
         val plaintextBytes = rootJson.toString().toByteArray(StandardCharsets.UTF_8)
@@ -156,6 +225,7 @@ class EncryptedBackupUseCase @Inject constructor(
 
         val resultEnvelope = JSONObject()
         resultEnvelope.put("paradoxBackup", true)
+        resultEnvelope.put("version", 3)
         resultEnvelope.put("salt", Base64.getEncoder().encodeToString(salt))
         resultEnvelope.put("iv", Base64.getEncoder().encodeToString(iv))
         resultEnvelope.put("payload", Base64.getEncoder().encodeToString(ciphertext))

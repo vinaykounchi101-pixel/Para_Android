@@ -7,6 +7,8 @@ import com.paradox.app.data.local.dao.AccountDao
 import com.paradox.app.data.local.dao.AiInsightLogDao
 import com.paradox.app.data.local.dao.BudgetDao
 import com.paradox.app.data.local.dao.CategoryDao
+import com.paradox.app.data.local.dao.DebtDao
+import com.paradox.app.data.local.dao.DebtRepaymentDao
 import com.paradox.app.data.local.dao.ExpenseDao
 import com.paradox.app.data.local.dao.IncomeDao
 import com.paradox.app.data.local.dao.PaymentMethodDao
@@ -18,6 +20,8 @@ import com.paradox.app.data.local.entity.AccountEntity
 import com.paradox.app.data.local.entity.AiInsightLogEntity
 import com.paradox.app.data.local.entity.BudgetEntity
 import com.paradox.app.data.local.entity.CategoryEntity
+import com.paradox.app.data.local.entity.DebtEntity
+import com.paradox.app.data.local.entity.DebtRepaymentEntity
 import com.paradox.app.data.local.entity.ExpenseEntity
 import com.paradox.app.data.local.entity.IncomeEntity
 import com.paradox.app.data.local.entity.PaymentMethodEntity
@@ -40,9 +44,11 @@ import com.paradox.app.data.local.entity.SyncQueueItemEntity
         SavingsGoalEntity::class,
         SavingsContributionEntity::class,
         AiInsightLogEntity::class,
-        SyncQueueItemEntity::class
+        SyncQueueItemEntity::class,
+        DebtEntity::class,
+        DebtRepaymentEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -58,4 +64,6 @@ abstract class ParadoxDatabase : RoomDatabase() {
     abstract fun savingsGoalDao(): SavingsGoalDao
     abstract fun aiInsightLogDao(): AiInsightLogDao
     abstract fun syncQueueDao(): SyncQueueDao
+    abstract fun debtDao(): DebtDao
+    abstract fun debtRepaymentDao(): DebtRepaymentDao
 }

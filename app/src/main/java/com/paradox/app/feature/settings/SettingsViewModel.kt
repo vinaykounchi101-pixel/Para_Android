@@ -52,6 +52,7 @@ data class SettingsUiState(
     val isBiometricEnabled: Boolean = false,
     val themeMode: String = "SYSTEM",
     val themePalette: String = "SLATE",
+    val appLanguage: String = "en",
     val isSeeding: Boolean = false,
     val isLoading: Boolean = false
 )
@@ -120,6 +121,12 @@ class SettingsViewModel @Inject constructor(
                 }
             }
 
+            launch {
+                sessionDataStore.appLanguage.collect { lang ->
+                    _uiState.update { it.copy(appLanguage = lang) }
+                }
+            }
+
             getProfilesUseCase().collect { profiles ->
                 _uiState.update { it.copy(allProfiles = profiles) }
             }
@@ -136,6 +143,20 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             sessionDataStore.setThemePalette(palette)
         }
+    }
+
+    fun setAppLanguage(languageCode: String) {
+        viewModelScope.launch {
+            sessionDataStore.setAppLanguage(languageCode)
+            _events.emit(SettingsEvent.ShowToast("Language preference updated to ${getLanguageDisplayName(languageCode)}"))
+        }
+    }
+
+    private fun getLanguageDisplayName(code: String): String = when (code) {
+        "hi" -> "हिन्दी (Hindi)"
+        "mr" -> "मराठी (Marathi)"
+        "hi-Latn" -> "Hinglish"
+        else -> "English"
     }
 
     fun toggleBiometric(enabled: Boolean) {

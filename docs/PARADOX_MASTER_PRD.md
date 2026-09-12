@@ -1,7 +1,7 @@
 # Paradox — Native Android Product Requirements Document (PRD)
 
-**Document Version:** 2.0  
-**Status:** Consolidated Product Definition  
+**Document Version:** 2.1  
+**Status:** Consolidated Product Definition (Updated with Debts & Udhaar Khata, Dynamic Month Selector, Wallets Net Balance Hero, & Multilingual Localization)  
 **Product:** Paradox Native Android App  
 **Platform:** Android  
 **Document Type:** Master Product Requirements Document
@@ -237,10 +237,13 @@ Payment confirmations, screenshots, receipts, invoices, and supported text can c
 
 Example starter categories: Food, Transport, Housing, Bills, Shopping, Entertainment, Healthcare, Education, Other.
 
-### Payment methods/accounts
-Support Cash, UPI, debit card, credit card, bank account, digital wallet, and custom methods.
-
-A later account/wallet model may track cash, banks, cards, and wallets. The app must never claim an account balance without sufficient recorded data or an approved integration.
+### Payment methods & Wallets / Accounts Model
+Paradox provides a comprehensive multi-account wallet architecture:
+- **Account Types Supported**: Cash, Bank Account, Debit/Credit Card, Digital Wallet (UPI/Paytm/GPay), Savings Vault, and Custom Account types.
+- **Net Balance Hero Card**: A prominent overview card summarizing total combined financial net worth across all active accounts with dynamic liquidity metrics.
+- **Account Customization**: Customizable color palettes (HEX/Material themes), custom icons, and primary/default account designations.
+- **Account Ledger & Transfers**: Real-time balance calculations derived strictly from reconciled income, expenses, debt repayments, and internal account-to-account transfers. The app must never claim an unverified account balance.
+- **UI & Ergonomics**: Spacious, readable 20dp padding cards, elevated balance counters, and quick add/edit bottom sheets.
 
 ### Ledger
 Support combined:
@@ -248,7 +251,7 @@ Support combined:
 - Date-range filter.
 - Category filter.
 - Amount-range filter.
-- Payment-method filter.
+- Payment-method / Account filter.
 - Date/amount/category sorting.
 
 Example: Search Uber + Transport + This Month + Highest Amount.
@@ -301,40 +304,38 @@ Budget calculations must be deterministic and financially precise.
 
 ---
 
-## 12. Dashboard, Analytics & Reports
+## 12. Dashboard, Dynamic Month Selector, Analytics & Reports
 
 ### Dashboard
 Prioritize clarity over information density.
 
-Core:
-- Total/current-period spending.
-- Remaining budget.
-- Budget status.
-- Recent expenses.
-- Top categories.
-- Category breakdown.
-- Spending trend.
-- Safe-to-Spend when available.
+**Dynamic Month & Period Selector**:
+- Interactive dropdown menu in the dashboard header supporting navigation across the past 12+ months (e.g., current month, previous months, specific custom year-months).
+- Instant, reactive recalculation of all dashboard metrics upon selecting a different month without requiring network calls or full app reloads.
 
-Advanced:
-- Income.
-- Net cash flow.
-- Savings rate.
-- Financial Health Score.
-- Recurring commitments.
-- Forecasts.
-- AI insights.
-- Savings-goal progress.
+**Core Metrics Scoped to Selected Month**:
+- Total spending in the selected period and comparison against the prior period.
+- Active budget progress, remaining allowance, and budget health indicator.
+- Spending velocity chart (daily spend bars with dynamic average pace lines).
+- Top category breakdown with progress indicators and percentage allocations.
+- Recent transaction ledger preview for the selected timeframe.
+- Safe-to-Spend daily allowance when available.
+
+**Advanced Metrics**:
+- Income vs. Expense net cash flow.
+- Savings rate and goal contribution pace.
+- Financial Health Score (0–100).
+- Recurring commitments & subscription alerts.
+- AI observations and spending trend anomaly detection.
 
 ### Analytics
 - Daily/weekly/monthly summaries.
 - Category distribution and drill-down.
-- Spending trends.
-- Historical comparisons.
+- Spending trends and velocity.
+- Historical comparisons across selected months.
 - Month-over-month percentage changes.
-- Average spending.
-- Top categories.
-- Budget adherence.
+- Average daily spending and burn rate.
+- Top categories and budget adherence.
 
 ### Monthly report
 May include income, expenses, net savings, savings rate, budget adherence, categories, recurring commitments, major changes, and AI observations. Export may support CSV, PDF, and spreadsheet-compatible formats.
@@ -453,7 +454,30 @@ The simulation must never automatically create the expense.
 
 ---
 
-## 18. Ask Paradox — AI Assistant
+## 18. Debts & Udhaar Management (Khata System)
+
+Paradox provides a complete peer-to-peer debt and credit ledger (Udhaar / Khata):
+- **Lent vs. Borrowed Tracking**:
+  - **Lent (You gave / Receivables)**: Money given to contacts, friends, family, or vendors.
+  - **Borrowed (You took / Payables)**: Money borrowed from peers, lenders, or institutions.
+- **Native Contact Picker Integration**:
+  - Direct integration with Android contact picker (`PickContact` / `ContactsContract`) to seamlessly select contact names and phone numbers without manual typing.
+  - Safe permission handling and graceful fallback allowing immediate manual name/phone entry if contacts permission is denied or unavailable.
+- **Repayment Tracking (`RepaymentEntity`)**:
+  - Support for partial repayments, milestone installments, and full lump-sum settlements.
+  - Dynamic recalculation of remaining balance (`initialAmount - sum(repayments)`).
+  - Explicit status: **Active** (open balance) vs. **Settled** (fully repaid).
+- **Due Dates, Notes & Categories**:
+  - Optional settlement due dates with automated reminder triggers.
+  - Contextual notes and categorization for auditability.
+- **Ergonomics & Modal Design System**:
+  - Spacious Material 3 bottom sheets for recording debts and repayments with generous touch targets (20dp padding).
+  - Quick amount selector chips (`+₹100`, `+₹500`, `+₹1000`, `+₹2000`).
+  - Native Material 3 Date Picker integration.
+
+---
+
+## 19. Ask Paradox — AI Assistant
 
 Ask Paradox is the central conversational AI surface.
 
@@ -477,7 +501,7 @@ Ask Paradox is read-only by default. Consequential actions require explicit conf
 
 ---
 
-## 19. AI Intelligence Suite
+## 20. AI Intelligence Suite
 
 ### Faster logging
 - Quick Add.
@@ -513,7 +537,7 @@ AI features must not block normal expense tracking.
 
 ---
 
-## 20. Duplicate Guard & Import
+## 21. Duplicate Guard & Import
 
 ### Duplicate Guard
 Use signals such as amount, merchant/title, date proximity, payment method, and source/reference. Warn rather than automatically delete/reject.
@@ -535,7 +559,7 @@ Full card/account numbers and unnecessary balance information must not be retain
 
 ---
 
-## 21. Native Android Experience
+## 22. Native Android Experience
 
 Use Android capabilities only when they genuinely improve the product.
 
@@ -571,7 +595,7 @@ Future consideration only.
 
 ---
 
-## 22. Offline-First & Synchronization
+## 23. Offline-First & Synchronization
 
 Core financial operations should not require continuous internet access.
 
@@ -582,6 +606,7 @@ Offline:
 - Manage budgets.
 - Record income once available.
 - Manage savings data once available.
+- Manage debts, repayments, and wallets.
 
 If AI requires connectivity:
 **AI unavailable → Explain → Manual fallback**
@@ -599,13 +624,14 @@ When sync exists:
 
 ---
 
-## 23. Backup, Export & Permissions
+## 24. Backup, Export & Permissions
 
 Later versions may provide encrypted backup/restore and CSV/PDF/spreadsheet exports. Backup is distinct from sync and must be clearly communicated.
 
 Potential permissions:
-- Camera.
-- Microphone.
+- Contacts (for Debt contact selection; optional with manual fallback).
+- Camera (for receipt scanning).
+- Microphone (for voice entry).
 - Notifications.
 - SMS only where supported and policy-compliant.
 - Location only for an explicitly enabled location-aware feature.
@@ -617,12 +643,12 @@ Location must never be required for ordinary expense tracking.
 
 ---
 
-## 24. Privacy & Security Requirements
+## 25. Privacy & Security Requirements
 
 Mandatory principles:
 1. No plaintext PIN/password storage.
 2. Secure credential handling.
-3. Encrypted local financial data.
+3. Encrypted local financial data (SQLCipher).
 4. Strict profile/data isolation.
 5. Minimize financial data transmission.
 6. Privacy-conscious AI access.
@@ -637,17 +663,17 @@ Mandatory principles:
 
 ---
 
-## 25. Localization, Currency & Accessibility
+## 26. Localization, Currency & Accessibility
 
-### Localization
-Initial language: English.
-
-Planned:
-- Marathi.
-- Hindi.
-
-Future:
-- Gujarati, Marwadi, German, Spanish, French, and additional demand-driven languages.
+### Localization & In-App Language System
+Paradox features an in-app language switcher supporting regional and conversational formats:
+- **Supported Languages**:
+  - **English (`en`)**: Clean standard financial terminology.
+  - **Hindi (`hi`)**: Native Devanagari script for broader reach.
+  - **Marathi (`mr`)**: Native Marathi script with localized idioms.
+  - **Hinglish / Minglish (`hi-Latn` / conversational)**: Casual Latin-script Hindi/Marathi mix for natural AI conversation and financial tracking.
+- **Persistence**: Selected language preference is persisted locally via `SessionDataStore` and dynamically applied across Compose UI lifecycles.
+- **Future Expansion**: Gujarati, Marwadi, German, Spanish, French, and additional demand-driven languages.
 
 ### Currency
 Initial priorities: INR, USD, EUR, GBP.
@@ -674,7 +700,7 @@ Mixed-currency totals must not be presented as exact when required rates are una
 
 ---
 
-## 26. Recommended Technical Direction
+## 27. Recommended Technical Direction
 
 The product must not inherit the existing web application's implementation.
 
@@ -700,7 +726,7 @@ Final architecture, API contracts, database schema, testing strategy, project st
 
 ---
 
-## 27. Non-Functional Requirements
+## 28. Non-Functional Requirements
 
 ### Security
 Secure credentials, encrypted local data, Keystore-backed keys, official biometric APIs, appropriate screen protection, secure network configuration when networking exists, and permission minimization.
@@ -724,7 +750,7 @@ Accessibility requirements apply throughout the product, not only to a dedicated
 
 ---
 
-## 28. Data Integrity & UX Rules
+## 29. Data Integrity & UX Rules
 
 ### No hardcoded/dummy financial data
 Production financial information must come from:
@@ -761,7 +787,7 @@ Important screens must support:
 
 ---
 
-## 29. Roadmap
+## 30. Roadmap
 
 ### Phase 1 — Core Foundation / MVP
 - Native Android app.
@@ -770,29 +796,31 @@ Important screens must support:
 - Strict data isolation.
 - Expense CRUD.
 - Dynamic categories.
-- Payment methods.
+- Payment methods & initial accounts.
 - Search/filter/sort.
 - Dashboard and core charts.
+- **Dynamic Month Selector (Past 12+ months dropdown with reactive recalculations)**.
 - Monthly/category budgets.
-- Exact calculations.
+- Exact calculations (`BigDecimal`).
 - Offline core usage.
 - Empty/loading/error states.
-- Basic security hardening.
+- Basic security hardening (Keystore + SQLCipher).
+- **In-App Multilingual Localization (English, Hindi, Marathi, Hinglish/Minglish)**.
 - No hardcoded financial data.
 
 ### Phase 2 — Native Convenience & Financial Foundation
-- Widget.
+- **Debts & Udhaar Management System (Lent/Borrowed, Contact Picker, Repayments, Settlements)**.
+- **Wallets & Accounts Model (Net Balance Hero Card, multi-account types, custom colors)**.
+- Income and cash flow.
+- Recurring expenses & Subscription tracking.
+- Savings goals.
+- Widget (Jetpack Glance).
 - Shortcuts.
 - Share Sheet.
 - Notifications.
 - Quick Settings where appropriate.
-- Income and cash flow.
-- Wallets/accounts.
-- Recurring expenses.
-- Subscription tracking.
-- Savings goals.
-- Export.
-- Theme support.
+- Export (CSV/PDF).
+- Theme support (Material 3 Dark/Light).
 - Improved responsive layouts.
 
 ### Phase 3 — Assisted Capture
@@ -842,7 +870,7 @@ Important screens must support:
 
 ---
 
-## 30. Optional Engagement Features
+## 31. Optional Engagement Features
 
 Lower-priority possibilities:
 - Monthly financial digest / Wrapped.
@@ -856,7 +884,7 @@ These must never shame users, encourage unhealthy spending, or compromise clarit
 
 ---
 
-## 31. Success Metrics
+## 32. Success Metrics
 
 ### Core
 - Onboarding completion.
@@ -892,7 +920,7 @@ These must never shame users, encourage unhealthy spending, or compromise clarit
 
 ---
 
-## 32. Definition of Done
+## 33. Definition of Done
 
 ### MVP
 - Private local profile creation/unlock works.
@@ -919,7 +947,7 @@ A feature is complete only when it uses real data, handles failure states, has a
 
 ---
 
-## 33. Final Product Direction
+## 34. Final Product Direction
 
 Paradox should not try to become the biggest finance application.
 

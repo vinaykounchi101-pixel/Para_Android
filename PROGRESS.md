@@ -1,6 +1,6 @@
 # Paradox Native Android App — Project Progress
 
-## Current Status: Phase 1 through Phase 6 Fully Completed & Verified
+## Current Status: Phase 1 through Phase 7 Fully Completed & Verified
 
 ### Phase-by-Phase Roadmap Progress
 
@@ -47,8 +47,12 @@
 
 - [x] **Phase 5: Sync, Backup & Advanced Personalization**
   - [x] Offline-First Sync Engine & Outbox Queue (`SyncEngine`, `SyncQueueItemEntity`, `SyncQueueDao`)
-  - [x] AES-256-GCM Password-Protected Encrypted Vault Backup (`EncryptedBackupUseCase`)
-  - [x] Safe Vault Restore with Validation & Passphrase Verification (`RestoreBackupUseCase`)
+  - [x] AES-256-GCM Password-Protected Encrypted Vault Backup with full 8-entity serialization (`EncryptedBackupUseCase`)
+  - [x] Safe Vault Restore with Topological Dependency Rebuilding & Passphrase Verification (`RestoreBackupUseCase`)
+  - [x] Standalone File-Based Backup Export (`.paradoxvault` / `.json`) via Android SAF (`CreateDocument`) & Share Sheet (`FileProvider`)
+  - [x] Standalone File-Based Backup Import via Android System File Picker (`OpenDocument`) with live badge details & decryption
+  - [x] Dynamic Active Profile Resolution & Automatic Foreign-Key Fallback Generation (resolving error 1811)
+  - [x] Clear Decryption Error Diagnostics (`AEADBadTagException` / `BadPaddingException` mapped to helpful user messages)
   - [x] Backup & Restore UI & ViewModel (`BackupScreen`, `BackupViewModel`)
   - [x] Sync Settings UI & Management (`SyncSettingsScreen`, `SyncViewModel`)
   - [x] Hindi (`values-hi/strings.xml`) and Marathi (`values-mr/strings.xml`) Multi-Language Localization
@@ -59,14 +63,25 @@
   - [x] Positive Reinforcement Streak & Discipline Counter (`CalculateStreakUseCase`)
   - [x] Financial Persona / Spending Vibe Analyzer (`DetermineFinancialVibeUseCase`)
   - [x] Engagement & Community Hub UI (`EngagementScreen`, `EngagementViewModel`)
-  - [x] Full End-to-End Build & 41 Passing Unit Tests across All Phases
 
 - [x] **Phase 7: SmartSpend UI Alignment, Custom Authentication & Visual Polish**
-  - [x] SmartSpend design system alignment for Onboarding & Unlock screens
+  - [x] SmartSpend design system alignment for Onboarding, Unlock, and Settings screens
   - [x] 3-way primary lock method selector: `[ PIN ]`, `[ PASSWORD ]`, `[ PATTERN ]`
   - [x] Custom interactive 3x3 Pattern Lock canvas component (`PatternLockView`) with real-time gesture tracking, glowing node rings, connection lines, and validation (min 4 dots)
-  - [x] Prominent tactile circular Fingerprint biometric scan button with native Android `BiometricPrompt`
+  - [x] Tactile circular Fingerprint biometric scan button with native Android `BiometricPrompt`
   - [x] 6 Curated Pastel Theme Palettes (`Ocean Slate`, `Forest Sage`, `Twilight Lilac`, `Warm Clay`, `Matcha Tea`, `Vintage Rose`) with dynamic System / Light / Dark modes
   - [x] Spending Velocity card redesign with custom styled bar charts and 7-day breakdown
   - [x] Dedicated **Sign Out** option in Settings header & Security group with root backstack cleanup (`popUpTo(0)`)
+  - [x] On-Device Instrumented Test Data Seeder (`SeedSampleDataTest.kt`)
+
+- [x] **Phase 8: Debts & Udhaar (Khata), Month Selector, Wallets Net Balance Hero & In-App Localization**
+  - [x] Debts & Udhaar (Khata) Peer-to-Peer Ledger (`DebtEntity`, `DebtRepaymentEntity`, `DebtDao`, `DebtRepaymentDao`, `DebtRepositoryImpl`)
+  - [x] Android Contact Picker Integration (`ActivityResultContracts.PickContact` / `ContactsContract`) with safe permission handling and zero-crash manual fallback
+  - [x] Partial & full debt repayment tracking with live balance deductions and auto-settlement (`isSettled = true`)
+  - [x] Material 3 Modal Bottom Sheets with 20dp padding and quick amount selector chips (`+₹100`, `+₹500`, `+₹1000`, `+₹2000`)
+  - [x] Top App Bar Dynamic Month Selector Dropdown with reactive multi-month recalculation for dashboard totals, velocity bars, and top categories
+  - [x] Wallets & Accounts Net Balance Hero card with liquid vs credit breakdown and 20dp card styling
+  - [x] In-App Language Selector Bottom Sheet with runtime locale switching (EN, HI, MR, Hinglish) and DataStore persistence
+  - [x] PRD (`PARADOX_MASTER_PRD.md` v2.1) & SRS (`PARADOX_ANDROID_SRS.md` v1.2) fully synchronized with native architecture
+  - [x] Complete automated unit test suite passing (`./gradlew.bat testDebugUnitTest`)
 

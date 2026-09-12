@@ -67,6 +67,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import com.paradox.app.core.ui.components.BottomNavDestination
 import com.paradox.app.core.ui.components.ConfirmDeleteDialog
 import com.paradox.app.core.ui.components.ParadoxBottomNavBar
@@ -85,6 +87,7 @@ fun SettingsScreen(
     onNavigateToSync: () -> Unit = {},
     onNavigateToEngagement: () -> Unit = {},
     onNavigateToInsights: () -> Unit = {},
+    onNavigateToDebts: () -> Unit = {},
     onNavigateToDashboard: () -> Unit = onNavigateBack,
     onNavigateToLedger: () -> Unit = {},
     onNavigateToBudgets: () -> Unit = {},
@@ -94,6 +97,7 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showDeleteConfirmation by remember { mutableStateOf(false) }
+    var showLanguageSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
@@ -111,6 +115,17 @@ fun SettingsScreen(
             message = "Are you sure you want to permanently erase this profile? All expenses, categories, wallets, and local database keys will be destroyed.",
             onConfirm = viewModel::deleteProfile,
             onDismiss = { showDeleteConfirmation = false }
+        )
+    }
+
+    if (showLanguageSheet) {
+        LanguageSelectionBottomSheet(
+            currentLanguage = uiState.appLanguage,
+            onSelectLanguage = { lang ->
+                viewModel.setAppLanguage(lang)
+                showLanguageSheet = false
+            },
+            onDismiss = { showLanguageSheet = false }
         )
     }
 
@@ -448,6 +463,12 @@ fun SettingsScreen(
                     onClick = onNavigateToSavingsGoals
                 )
                 SettingsActionRow(
+                    icon = Icons.Outlined.AccountBalanceWallet,
+                    title = "Debts & Udhaar",
+                    subtitle = "Track money lent, borrowed & settlements",
+                    onClick = onNavigateToDebts
+                )
+                SettingsActionRow(
                     icon = Icons.Outlined.FileDownload,
                     title = "Export Reports",
                     subtitle = "Generate RFC-4180 CSV & vector PDFs",
@@ -463,11 +484,17 @@ fun SettingsScreen(
                     subtitle = "Manage sync engine and outbox records",
                     onClick = onNavigateToSync
                 )
+                val activeLanguageLabel = when (uiState.appLanguage) {
+                    "hi" -> "Active: हिन्दी (Hindi)"
+                    "mr" -> "Active: मराठी (Marathi)"
+                    "hi-Latn" -> "Active: Hinglish (AI Mix)"
+                    else -> "Active: English (EN)"
+                }
                 SettingsActionRow(
                     icon = Icons.Outlined.Translate,
                     title = "Language & Localization",
-                    subtitle = "English, हिन्दी (Hindi), मराठी (Marathi)",
-                    onClick = { /* System locale driven */ }
+                    subtitle = activeLanguageLabel,
+                    onClick = { showLanguageSheet = true }
                 )
             }
 
@@ -645,5 +672,173 @@ private fun SettingsSwitchRow(
                 checkedTrackColor = MaterialTheme.colorScheme.primary
             )
         )
+    }
+}
+
+private data class LanguageOption(
+    val code: String,
+    val nativeName: String,
+    val englishName: String,
+    val subtitle: String
+)
+
+private val AppLanguages = listOf(
+    LanguageOption("en", "English", "English (US / India)", "Default universal financial vocabulary"),
+    LanguageOption("hi", "हिन्दी", "Hindi", "भारतीय क्षेत्रीय भाषा"),
+    LanguageOption("mr", "मराठी", "Marathi", "महाराष्ट्र प्रादेशिक भाषा"),
+    LanguageOption("hi-Latn", "Hinglish", "Conversational AI Mix", "Voice, OCR & Minglish natural input")
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LanguageSelectionBottomSheet(
+    currentLanguage: String,
+    onSelectLanguage: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+        dragHandle = {
+            Box(
+                modifier = Modifier
+                    .padding(top = 12.dp, bottom = 8.dp)
+                    .width(36.dp)
+                    .height(4.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.outlineVariant)
+            )
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 36.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Translate,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+
+                Column {
+                    Text(
+                        text = "Language & Localization",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 19.sp
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "Choose preferred app dialect & AI voice assistant",
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            AppLanguages.forEach { lang ->
+                val isSelected = lang.code == currentLanguage
+
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = if (isSelected) {
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                    } else {
+                        MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.5f)
+                    },
+                    border = androidx.compose.foundation.BorderStroke(
+                        width = if (isSelected) 1.5.dp else 1.dp,
+                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onSelectLanguage(lang.code) }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(10.dp),
+                                color = if (isSelected) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.surfaceVariant
+                                }
+                            ) {
+                                Text(
+                                    text = lang.code.uppercase().take(2),
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp
+                                    ),
+                                    color = if (isSelected) {
+                                        MaterialTheme.colorScheme.onPrimary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    },
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)
+                                )
+                            }
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "${lang.nativeName} (${lang.englishName})",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                        fontSize = 14.5.sp
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = lang.subtitle,
+                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        if (isSelected) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = "Selected",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }

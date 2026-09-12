@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Lock
@@ -33,6 +34,8 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.ReceiptLong
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +45,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,6 +69,7 @@ import com.paradox.app.core.money.Money
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -81,6 +88,7 @@ fun DashboardScreen(
     onNavigateToAskParadox: () -> Unit = {},
     onNavigateToInsights: () -> Unit = {},
     onNavigateToEngagement: () -> Unit = {},
+    onNavigateToDebts: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -145,6 +153,9 @@ fun DashboardScreen(
             ) { summary ->
                 DashboardContent(
                     summary = summary,
+                    selectedYearMonth = uiState.selectedYearMonth,
+                    availableMonths = uiState.availableMonths,
+                    onSelectMonth = viewModel::selectMonth,
                     onNavigateToLedger = onNavigateToLedger,
                     onNavigateToBudgets = onNavigateToBudgets,
                     onNavigateToExpenseDetail = onNavigateToExpenseDetail,
@@ -156,7 +167,8 @@ fun DashboardScreen(
                     onNavigateToCapture = onNavigateToCapture,
                     onNavigateToAskParadox = onNavigateToAskParadox,
                     onNavigateToInsights = onNavigateToInsights,
-                    onNavigateToEngagement = onNavigateToEngagement
+                    onNavigateToEngagement = onNavigateToEngagement,
+                    onNavigateToDebts = onNavigateToDebts
                 )
             }
         }
@@ -273,6 +285,9 @@ private fun StitchHeader(
 @Composable
 private fun DashboardContent(
     summary: DashboardSummary,
+    selectedYearMonth: YearMonth,
+    availableMonths: List<YearMonth>,
+    onSelectMonth: (YearMonth) -> Unit,
     onNavigateToLedger: () -> Unit,
     onNavigateToBudgets: () -> Unit,
     onNavigateToExpenseDetail: (String) -> Unit,
@@ -284,7 +299,8 @@ private fun DashboardContent(
     onNavigateToCapture: (String) -> Unit,
     onNavigateToAskParadox: () -> Unit = {},
     onNavigateToInsights: () -> Unit = {},
-    onNavigateToEngagement: () -> Unit = {}
+    onNavigateToEngagement: () -> Unit = {},
+    onNavigateToDebts: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
@@ -295,7 +311,7 @@ private fun DashboardContent(
             .padding(horizontal = 20.dp, vertical = 4.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
-        // Subheader: Local Device Storage & Period Picker Pill
+        // Subheader: Local Device Storage & Period Picker Dropdown Pill
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -321,46 +337,24 @@ private fun DashboardContent(
                 )
             }
 
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceContainerLowest,
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                shadowElevation = 0.5.dp,
-                modifier = Modifier.clickable { onNavigateToLedger() }
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    val currentMonthName = LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM yyyy"))
-                    Text(
-                        text = currentMonthName,
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 12.5.sp
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Icon(
-                        imageVector = Icons.Filled.ExpandMore,
-                        contentDescription = "Select period",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            }
+            DashboardMonthDropdown(
+                selectedYearMonth = selectedYearMonth,
+                availableMonths = availableMonths,
+                onSelectMonth = onSelectMonth
+            )
         }
 
         // Hero Card: Month Total Spend with Editorial Typography
         StitchHeroCard(
             summary = summary,
+            selectedYearMonth = selectedYearMonth,
             onCardClick = onNavigateToBudgets
         )
 
         // Safe-to-Spend Tile (FR-P4-002)
         StitchSafeToSpendTile(
             summary = summary,
+            selectedYearMonth = selectedYearMonth,
             onClick = onNavigateToInsights
         )
 
@@ -370,6 +364,7 @@ private fun DashboardContent(
             onNavigateToInsights = onNavigateToInsights,
             onNavigateToCapture = onNavigateToCapture,
             onNavigateToEngagement = onNavigateToEngagement,
+            onNavigateToDebts = onNavigateToDebts,
             onNavigateToIncome = onNavigateToIncome,
             onNavigateToAccounts = onNavigateToAccounts,
             onNavigateToRecurring = onNavigateToRecurring,
@@ -425,6 +420,7 @@ private fun DashboardContent(
 @Composable
 private fun StitchHeroCard(
     summary: DashboardSummary,
+    selectedYearMonth: YearMonth,
     onCardClick: () -> Unit
 ) {
     val overallBudget = summary.overallBudgetStatus
@@ -447,8 +443,13 @@ private fun StitchHeroCard(
                 verticalAlignment = Alignment.Top
             ) {
                 Column {
+                    val headerLabel = if (selectedYearMonth == YearMonth.now()) {
+                        "MONTH TOTAL SPEND"
+                    } else {
+                        "${selectedYearMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy")).uppercase()} SPEND"
+                    }
                     Text(
-                        text = "MONTH TOTAL SPEND",
+                        text = headerLabel,
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
@@ -497,7 +498,7 @@ private fun StitchHeroCard(
                 }
 
                 Surface(
-                    shape = CircleShape,
+                    shape = RoundedCornerShape(20.dp),
                     color = badgeBg
                 ) {
                     Row(
@@ -515,7 +516,7 @@ private fun StitchHeroCard(
                             text = text,
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = FontWeight.SemiBold,
-                                fontSize = 11.5.sp
+                                fontSize = 11.sp
                             ),
                             color = textColor
                         )
@@ -523,40 +524,45 @@ private fun StitchHeroCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
-            // Linear Spend Gauge
-            val pctUsed = overallBudget?.percentageUsed ?: 0.0
-            val progress = (pctUsed / 100.0).toFloat().coerceIn(0f, 1f)
+            // Progress Bar Section
+            val budgetAmount = overallBudget?.budget?.limit ?: Money.ZERO_INR
+            val spentAmount = summary.totalSpentThisMonth
+            val pctUsed = if (budgetAmount.isPositive()) {
+                val ratio = spentAmount.amount.divide(budgetAmount.amount, 4, RoundingMode.HALF_EVEN)
+                (ratio.multiply(BigDecimal(100)).toFloat()).coerceIn(0f, 100f)
+            } else 0f
+
             val animatedProgress by animateFloatAsState(
-                targetValue = progress,
-                animationSpec = tween(700),
-                label = "spend_progress"
+                targetValue = pctUsed / 100f,
+                animationSpec = tween(1000),
+                label = "progress"
             )
+
+            val trackColor = when {
+                pctUsed >= 100f -> Color(0xFFBA6D68)
+                pctUsed >= 80f -> Color(0xFFB8864E)
+                else -> MaterialTheme.colorScheme.primary
+            }
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxHeight()
                         .fillMaxWidth(animatedProgress)
-                        .clip(CircleShape)
-                        .background(
-                            when (overallBudget?.health) {
-                                BudgetHealth.ON_TRACK, null -> MaterialTheme.colorScheme.primary
-                                BudgetHealth.NEAR_LIMIT -> Color(0xFFB8864E)
-                                BudgetHealth.OVER_BUDGET -> MaterialTheme.colorScheme.error
-                            }
-                        )
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(trackColor)
                 )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -602,12 +608,19 @@ private fun StitchHeroCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                val dayOfMonth = LocalDate.now().dayOfMonth
-                val totalDays = LocalDate.now().lengthOfMonth()
-                val cycleElapsedPct = ((dayOfMonth.toFloat() / totalDays.toFloat()) * 100).toInt()
+                val cycleElapsedText = if (selectedYearMonth == YearMonth.now()) {
+                    val dayOfMonth = LocalDate.now().dayOfMonth
+                    val totalDays = LocalDate.now().lengthOfMonth()
+                    val cycleElapsedPct = ((dayOfMonth.toFloat() / totalDays.toFloat()) * 100).toInt()
+                    "$cycleElapsedPct% of cycle elapsed"
+                } else if (selectedYearMonth.isBefore(YearMonth.now())) {
+                    "Month cycle completed"
+                } else {
+                    "Cycle not started"
+                }
 
                 Text(
-                    text = "$cycleElapsedPct% of cycle elapsed",
+                    text = cycleElapsedText,
                     style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -630,6 +643,7 @@ private data class Quad<A, B, C, D>(val first: A, val second: B, val third: C, v
 @Composable
 private fun StitchSafeToSpendTile(
     summary: DashboardSummary,
+    selectedYearMonth: YearMonth,
     onClick: () -> Unit
 ) {
     Surface(
@@ -703,9 +717,16 @@ private fun StitchSafeToSpendTile(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                val daysLeft = LocalDate.now().lengthOfMonth() - LocalDate.now().dayOfMonth
+                val daysLeftText = if (selectedYearMonth == YearMonth.now()) {
+                    val daysLeft = LocalDate.now().lengthOfMonth() - LocalDate.now().dayOfMonth
+                    "$daysLeft days left"
+                } else if (selectedYearMonth.isBefore(YearMonth.now())) {
+                    "Cycle ended"
+                } else {
+                    "${selectedYearMonth.lengthOfMonth()} days in month"
+                }
                 Text(
-                    text = "$daysLeft days left",
+                    text = daysLeftText,
                     style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -917,6 +938,7 @@ private fun QuickActionPillRow(
     onNavigateToInsights: () -> Unit,
     onNavigateToCapture: (String) -> Unit,
     onNavigateToEngagement: () -> Unit,
+    onNavigateToDebts: () -> Unit = {},
     onNavigateToIncome: () -> Unit,
     onNavigateToAccounts: () -> Unit,
     onNavigateToRecurring: () -> Unit,
@@ -931,6 +953,7 @@ private fun QuickActionPillRow(
     ) {
         QuickPill(label = "✨ Ask Paradox", onClick = onNavigateToAskParadox)
         QuickPill(label = "🧠 Intelligence", onClick = onNavigateToInsights)
+        QuickPill(label = "🤝 Debts & Udhaar", onClick = onNavigateToDebts)
         QuickPill(label = "📷 Scan Receipt", onClick = { onNavigateToCapture("OCR") })
         QuickPill(label = "🎤 Voice Entry", onClick = { onNavigateToCapture("VOICE") })
         QuickPill(label = "📊 Monthly Digest", onClick = onNavigateToEngagement)
@@ -1236,10 +1259,135 @@ private fun StitchTransactionRow(
             )
 
             Text(
-                text = expense.source.lowercase().capitalize(),
+                text = expense.source.lowercase().replaceFirstChar { it.uppercase() },
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.5.sp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
 }
+
+@Composable
+private fun DashboardMonthDropdown(
+    selectedYearMonth: YearMonth,
+    availableMonths: List<YearMonth>,
+    onSelectMonth: (YearMonth) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val formattedSelected = selectedYearMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
+
+    Box {
+        Surface(
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surfaceContainerLowest,
+            border = androidx.compose.foundation.BorderStroke(
+                width = 1.dp,
+                color = if (expanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+            ),
+            shadowElevation = if (expanded) 2.dp else 0.5.dp,
+            modifier = Modifier.clickable { expanded = !expanded }
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 13.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                Text(
+                    text = formattedSelected,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 12.5.sp
+                    ),
+                    color = if (expanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                )
+                Icon(
+                    imageVector = Icons.Filled.ExpandMore,
+                    contentDescription = "Select period",
+                    tint = if (expanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .clip(RoundedCornerShape(16.dp))
+        ) {
+            val currentYearMonth = YearMonth.now()
+
+            availableMonths.forEach { ym ->
+                val isSelected = ym == selectedYearMonth
+                val isCurrent = ym == currentYearMonth
+                val label = ym.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
+
+                DropdownMenuItem(
+                    text = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = label,
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        fontSize = 13.5.sp
+                                    ),
+                                    color = if (isSelected) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurface
+                                    }
+                                )
+                                if (isCurrent) {
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                    ) {
+                                        Text(
+                                            text = "Current",
+                                            style = MaterialTheme.typography.labelSmall.copy(
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.SemiBold
+                                            ),
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                        )
+                                    }
+                                }
+                            }
+                            if (isSelected) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Selected",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                    },
+                    onClick = {
+                        onSelectMonth(ym)
+                        expanded = false
+                    },
+                    modifier = Modifier.background(
+                        if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.08f) else Color.Transparent
+                    )
+                )
+            }
+        }
+    }
+}
+

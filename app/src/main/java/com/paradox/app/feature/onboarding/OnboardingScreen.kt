@@ -92,7 +92,7 @@ fun OnboardingScreen(
 
             // Title
             Text(
-                text = "Welcome to SmartSpend",
+                text = "Welcome to Paradox",
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Normal,
                     fontFamily = FontFamily.Serif,

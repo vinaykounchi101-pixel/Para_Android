@@ -72,11 +72,12 @@ class CalculateBudgetStatusUseCase @Inject constructor(
     private val budgetRepository: BudgetRepository,
     private val expenseRepository: ExpenseRepository
 ) {
-    operator fun invoke(profileId: String, type: BudgetType = BudgetType.MONTHLY): Flow<BudgetStatus?> {
-        val now = LocalDate.now()
-        val firstDay = now.with(TemporalAdjusters.firstDayOfMonth())
-        val lastDay = now.with(TemporalAdjusters.lastDayOfMonth())
-
+    operator fun invoke(
+        profileId: String,
+        type: BudgetType = BudgetType.MONTHLY,
+        firstDay: LocalDate = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()),
+        lastDay: LocalDate = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth())
+    ): Flow<BudgetStatus?> {
         return budgetRepository.getOverallBudget(profileId, type).flatMapLatest { budget ->
             if (budget == null) {
                 flowOf(null)

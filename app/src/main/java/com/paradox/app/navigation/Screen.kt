@@ -59,4 +59,5 @@ sealed class Screen(val route: String) {
     // Phase 6 Routes
     data object Engagement : Screen("engagement")
     data object SplitExpense : Screen("split_expense")
+    data object Debts : Screen("debts")
 }
