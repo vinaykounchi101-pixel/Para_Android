@@ -1,8 +1,8 @@
 # Paradox — Software Requirements Specification (SRS)
 
-**Document Version:** 1.2  
-**Status:** Approved Technical Specification (Updated with Debts & Udhaar Khata, Dynamic Month Selector, Wallets Net Balance Hero, & Multilingual Localization)  
-**Based on:** PARADOX_MASTER_PRD.md (v2.1)  
+**Document Version:** 1.3  
+**Status:** Approved Technical Specification (Updated with Paradox Quick Ball & Floating Assistive Capture Menu, Debts & Udhaar Khata, Dynamic Month Selector, Wallets Net Balance Hero, & Multilingual Localization)  
+**Based on:** PARADOX_MASTER_PRD.md (v2.2)  
 **Platform:** Native Android  
 **Document Type:** Software Requirements Specification  
 
@@ -25,7 +25,7 @@ Paradox is a native Android personal finance app built around **local-first priv
 - **Ask Paradox** — the app's grounded conversational AI surface.
 
 ### 1.4 References
-- PARADOX_MASTER_PRD.md (v2.1) — product requirements source.
+- PARADOX_MASTER_PRD.md (v2.2) — product requirements source.
 
 ---
 
@@ -116,6 +116,8 @@ This stack follows the Master PRD's Recommended Technical Direction (§27) direc
 | AI/LLM integration (Phase 4+) | **On-device preferred; external API optional** | Provider selection intentionally deferred — see PRD's "prefer local/on-device where practical; external AI optional." Not decided in this SRS. |
 | Testing | **JUnit5, Turbine (Flow testing), Espresso/Compose UI Test** *(SRS addition)* | See §9. |
 | Logging | **Timber** *(SRS addition)* | Structured local logging; no financial data in logs. |
+| Floating Overlay Service | **`QuickBallOverlayService` + `SYSTEM_ALERT_WINDOW`** *(SRS addition)* | System-wide assistive quick capture ball with Android 14/15 `PendingIntent` background launch capability. |
+| Assistive Floating UI | **Jetpack Compose + Radial Arc Physics** *(SRS addition)* | In-app and system overlay spring-animated C-curve radial arc with 3-second auto-tuck into screen edge. |
 
 ---
 
@@ -180,6 +182,7 @@ paradox-android/
 │       │   │   │   │
 │       │   │   │   ├── debt/                     # Phase 2 — Debts & Udhaar (Khata) ledger, repayments, contact picker
 │       │   │   │   ├── account/                  # Phase 2 — Wallets/Accounts model & Net Balance Hero
+│       │   │   │   ├── quickball/                # Phase 2 — System overlay service & floating assistive capture menu
 │       │   │   │   ├── income/                   # Phase 2
 │       │   │   │   ├── recurring/                # Phase 2 — recurring expenses & subscriptions
 │       │   │   │   ├── savingsgoal/              # Phase 2
@@ -280,6 +283,11 @@ Requirement IDs: `FR-P<phase>-<number>`.
 | FR-P2-013 | System shall support recording partial and full repayments (`RepaymentEntity`), dynamically deducting the repayment amount from the debt's remaining balance using exact `BigDecimal` arithmetic. |
 | FR-P2-014 | System shall track debt settlement status (Active vs. Settled), provide quick settlement actions, and guard against deleting active debts without confirmation. |
 | FR-P2-015 | System shall provide spacious Material 3 bottom sheets for debt and repayment entry with quick amount selector chips (`+100`, `+500`, `+1000`, `+2000`) and date pickers. |
+| FR-P2-016 | System shall support a floating **Paradox Quick Ball** with three user-configurable modes: `OFF`, `IN_APP` (zero special permissions, in-app Compose overlay), and `SYSTEM_WIDE` (Android `SYSTEM_ALERT_WINDOW` floating overlay across third-party apps). |
+| FR-P2-017 | System shall implement a foreground service (`QuickBallOverlayService`) managing system-wide floating overlay life-cycle, drag/snap physics, and Android 14/15 background activity launch compliance via `PendingIntent.getActivity` with `ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED`. |
+| FR-P2-018 | Quick Ball menu shall expand into an ergonomic C-curve crescent radial arc with 4 quick-action shortcuts (✍️ Quick Add, 🎙️ Voice Entry, 📷 Scan Receipt, ✨ Ask Paradox) using spring-based pop-out animations (`stiffness = 380f`, `dampingRatio = 0.65f`). |
+| FR-P2-019 | Quick Ball menu shall adhere to a **Minimal Light Pastel sRGB UI Theme** featuring pastel rounded capsules (Mint Cream `#F0FDF4`, Sky Cyan Cream `#F0F9FF`, Soft Periwinkle `#EEF2FF`, Lavender Lilac `#FAF5FF`), high-contrast dark slate typography (`#1E293B`), and a 95% transparent dismiss scrim (`alpha = 0.05f`) preventing screen darkening. |
+| FR-P2-020 | Quick Ball shall implement a **3-Second Inactivity Auto-Tuck**: automatically tucking 50% into the nearest screen edge and dimming to 38% opacity (`alpha = 0.38f`) after 3 seconds of user inactivity, waking instantly to 95% opacity upon touch or drag. |
 
 ### 6.3 Phase 3 — Assisted Capture
 

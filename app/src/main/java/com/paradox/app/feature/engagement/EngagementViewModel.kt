@@ -21,6 +21,7 @@ import javax.inject.Inject
 
 data class EngagementUiState(
     val isLoading: Boolean = true,
+    val isAiEnabled: Boolean = false,
     val digest: MonthlyDigest? = null,
     val streak: LoggingStreak? = null,
     val splitResult: SplitExpenseResult? = null,
@@ -41,7 +42,16 @@ class EngagementViewModel @Inject constructor(
     val uiState: StateFlow<EngagementUiState> = _uiState.asStateFlow()
 
     init {
+        observeAiState()
         loadData()
+    }
+
+    private fun observeAiState() {
+        viewModelScope.launch {
+            sessionDataStore.isAiEnabled.collect { enabled ->
+                _uiState.value = _uiState.value.copy(isAiEnabled = enabled)
+            }
+        }
     }
 
     fun loadData() {

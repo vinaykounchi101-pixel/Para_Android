@@ -1,5 +1,15 @@
 package com.paradox.app.feature.settings
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.outlined.RadioButtonChecked
+import androidx.compose.material.icons.outlined.RadioButtonUnchecked
+import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material.icons.outlined.Layers
+import com.paradox.app.feature.quickball.QuickBallOverlayService
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +33,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.AccountBalanceWallet
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Autorenew
 import androidx.compose.material.icons.outlined.BrightnessAuto
 import androidx.compose.material.icons.outlined.Category
@@ -30,8 +41,11 @@ import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.CloudSync
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Fingerprint
+import androidx.compose.material.icons.outlined.Key
+import androidx.compose.material.icons.outlined.KeyOff
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Palette
@@ -40,15 +54,21 @@ import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.Savings
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Translate
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -63,6 +83,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -115,6 +137,33 @@ fun SettingsScreen(
             message = "Are you sure you want to permanently erase this profile? All expenses, categories, wallets, and local database keys will be destroyed.",
             onConfirm = viewModel::deleteProfile,
             onDismiss = { showDeleteConfirmation = false }
+        )
+    }
+
+    if (uiState.showApiKeyDialog) {
+        ApiKeyInputDialog(
+            title = "Enable AI Features",
+            errorMessage = uiState.apiKeyInputError,
+            onConfirm = viewModel::saveNewApiKey,
+            onDismiss = viewModel::closeApiKeyDialog
+        )
+    }
+
+    if (uiState.showEditKeyDialog) {
+        ApiKeyInputDialog(
+            title = "Edit API Key",
+            errorMessage = uiState.apiKeyInputError,
+            onConfirm = viewModel::editApiKey,
+            onDismiss = viewModel::closeEditKeyDialog
+        )
+    }
+
+    if (uiState.showRemoveKeyDialog) {
+        ConfirmDeleteDialog(
+            title = "Remove API Key",
+            message = "Are you sure you want to delete your stored API key? AI features will be disabled until a new key is configured.",
+            onConfirm = viewModel::removeApiKey,
+            onDismiss = viewModel::closeRemoveKeyDialog
         )
     }
 
@@ -395,6 +444,91 @@ fun SettingsScreen(
                 }
             }
 
+            // Assistive Quick Ball Group
+            val context = LocalContext.current
+            SettingsGroup(title = "Assistive Quick Ball") {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Edge-docked floating shortcut ball for instant 1-tap capture & copilot access.",
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    val modes = listOf(
+                        Triple("OFF", "Disabled", "No floating ball"),
+                        Triple("IN_APP", "In-App Only (Recommended)", "Zero permissions • Floats only within Paradox"),
+                        Triple("SYSTEM_WIDE", "System-Wide Floating", "Floats over all apps (GPay, Swiggy, etc.)")
+                    )
+
+                    modes.forEach { (mode, title, desc) ->
+                        val isSelected = uiState.quickBallMode.equals(mode, ignoreCase = true)
+                        Surface(
+                            shape = RoundedCornerShape(14.dp),
+                            color = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surfaceContainerLow,
+                            border = androidx.compose.foundation.BorderStroke(
+                                if (isSelected) 1.5.dp else 1.dp,
+                                if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    if (mode == "SYSTEM_WIDE") {
+                                        viewModel.setQuickBallMode("SYSTEM_WIDE")
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(context)) {
+                                            val intent = Intent(
+                                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                                Uri.parse("package:${context.packageName}")
+                                            )
+                                            context.startActivity(intent)
+                                        } else {
+                                            QuickBallOverlayService.start(context)
+                                        }
+                                    } else {
+                                        QuickBallOverlayService.stop(context)
+                                        viewModel.setQuickBallMode(mode)
+                                    }
+                                }
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (isSelected) Icons.Outlined.RadioButtonChecked else Icons.Outlined.RadioButtonUnchecked,
+                                    contentDescription = null,
+                                    tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(20.dp)
+                                )
+
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = title,
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                            fontSize = 13.5.sp
+                                        ),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = desc,
+                                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             // Security & Vault Group
             SettingsGroup(title = "Security & Access") {
                 SettingsActionRow(
@@ -474,6 +608,42 @@ fun SettingsScreen(
                     subtitle = "Generate RFC-4180 CSV & vector PDFs",
                     onClick = onNavigateToExport
                 )
+            }
+
+            // AI Features & Intelligence
+            SettingsGroup(title = "AI Features & Intelligence") {
+                SettingsSwitchRow(
+                    icon = Icons.Outlined.AutoAwesome,
+                    title = "AI Features",
+                    subtitle = if (uiState.isAiEnabled) "Enabled • Grounded queries, insights & suggestions" else "Disabled • Offline local computations only",
+                    checked = uiState.isAiEnabled,
+                    onCheckedChange = viewModel::toggleAiFeatures
+                )
+
+                SettingsActionRow(
+                    icon = Icons.Outlined.Key,
+                    title = "API Configuration",
+                    subtitle = if (uiState.hasApiKey) "Configured (••••••••)" else "Not configured — Tap to setup",
+                    onClick = {
+                        if (uiState.hasApiKey) viewModel.openEditKeyDialog() else viewModel.openApiKeyDialog()
+                    }
+                )
+
+                if (uiState.hasApiKey) {
+                    SettingsActionRow(
+                        icon = Icons.Outlined.Edit,
+                        title = "Edit API Key",
+                        subtitle = "Update or replace existing encrypted key",
+                        onClick = viewModel::openEditKeyDialog
+                    )
+                    SettingsActionRow(
+                        icon = Icons.Outlined.KeyOff,
+                        title = "Remove API Key",
+                        subtitle = "Securely delete stored key from Keystore",
+                        titleColor = MaterialTheme.colorScheme.error,
+                        onClick = viewModel::openRemoveKeyDialog
+                    )
+                }
             }
 
             // Cloud & Preferences
@@ -842,3 +1012,90 @@ private fun LanguageSelectionBottomSheet(
         }
     }
 }
+
+@Composable
+private fun ApiKeyInputDialog(
+    title: String,
+    initialKey: String = "",
+    errorMessage: String? = null,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var apiKey by remember { mutableStateOf(initialKey) }
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Key,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(22.dp)
+                )
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            }
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    text = "Enter your personal Gemini API key. Your key is securely encrypted with hardware-backed AES-256-GCM directly in Android KeyStore. It is never logged or exposed.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                OutlinedTextField(
+                    value = apiKey,
+                    onValueChange = { apiKey = it },
+                    label = { Text("API Key") },
+                    placeholder = { Text("Paste your API key here") },
+                    singleLine = true,
+                    isError = errorMessage != null,
+                    supportingText = {
+                        if (errorMessage != null) {
+                            Text(errorMessage, color = MaterialTheme.colorScheme.error)
+                        } else {
+                            Text(
+                                "Obtain free key from Google AI Studio (aistudio.google.com)",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                fontSize = 11.sp
+                            )
+                        }
+                    },
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (passwordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(imageVector = image, contentDescription = if (passwordVisible) "Hide key" else "Show key")
+                        }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onConfirm(apiKey) },
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Text("Save Key")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+        shape = RoundedCornerShape(20.dp),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    )
+}
+

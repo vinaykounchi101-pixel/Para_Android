@@ -36,6 +36,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FileUpload
@@ -63,6 +64,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -93,6 +95,7 @@ fun CaptureHubScreen(
     initialMode: CaptureMode = CaptureMode.QUICK_ADD,
     sharedText: String? = null,
     sharedImageUri: Uri? = null,
+    onNavigateToSettings: () -> Unit = {},
     viewModel: CaptureViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -182,7 +185,7 @@ fun CaptureHubScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Assisted Capture") },
+                title = { Text("Smart Capture") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -206,19 +209,19 @@ fun CaptureHubScreen(
                 Tab(
                     selected = uiState.selectedMode == CaptureMode.QUICK_ADD,
                     onClick = { viewModel.setMode(CaptureMode.QUICK_ADD) },
-                    text = { Text("Quick Add") },
+                    text = { Text(if (uiState.isAiEnabled) "Quick Add" else "🔒 Quick Add") },
                     icon = { Icon(Icons.Default.Edit, contentDescription = null) }
                 )
                 Tab(
                     selected = uiState.selectedMode == CaptureMode.VOICE,
                     onClick = { viewModel.setMode(CaptureMode.VOICE) },
-                    text = { Text("Voice") },
+                    text = { Text(if (uiState.isAiEnabled) "Voice" else "🔒 Voice") },
                     icon = { Icon(Icons.Default.Mic, contentDescription = null) }
                 )
                 Tab(
                     selected = uiState.selectedMode == CaptureMode.OCR,
                     onClick = { viewModel.setMode(CaptureMode.OCR) },
-                    text = { Text("Scan Receipt") },
+                    text = { Text(if (uiState.isAiEnabled) "Scan Receipt" else "🔒 Scan Receipt") },
                     icon = { Icon(Icons.Default.CameraAlt, contentDescription = null) }
                 )
                 Tab(
@@ -240,27 +243,45 @@ fun CaptureHubScreen(
                 item {
                     when (uiState.selectedMode) {
                         CaptureMode.QUICK_ADD -> {
-                            QuickAddInputSection(
-                                text = uiState.inputText,
-                                onTextChanged = viewModel::onInputTextChanged
-                            )
+                            com.paradox.app.core.ui.components.AiFeatureDisabledContainer(
+                                isAiEnabled = uiState.isAiEnabled,
+                                featureName = "Quick Add AI",
+                                onNavigateToSettings = onNavigateToSettings
+                            ) {
+                                QuickAddInputSection(
+                                    text = uiState.inputText,
+                                    onTextChanged = viewModel::onInputTextChanged
+                                )
+                            }
                         }
                         CaptureMode.VOICE -> {
-                            VoiceCaptureSection(
-                                voiceState = uiState.voiceState,
-                                hasAudioPermission = hasAudioPermission,
-                                onRequestPermission = { audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO) },
-                                onStartListening = viewModel::startVoiceListening,
-                                onStopListening = viewModel::stopVoiceListening
-                            )
+                            com.paradox.app.core.ui.components.AiFeatureDisabledContainer(
+                                isAiEnabled = uiState.isAiEnabled,
+                                featureName = "Voice Entry AI",
+                                onNavigateToSettings = onNavigateToSettings
+                            ) {
+                                VoiceCaptureSection(
+                                    voiceState = uiState.voiceState,
+                                    hasAudioPermission = hasAudioPermission,
+                                    onRequestPermission = { audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO) },
+                                    onStartListening = viewModel::startVoiceListening,
+                                    onStopListening = viewModel::stopVoiceListening
+                                )
+                            }
                         }
                         CaptureMode.OCR -> {
-                            OcrScanSection(
-                                hasCameraPermission = hasCameraPermission,
-                                onRequestPermission = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
-                                onPickFromGallery = { galleryLauncher.launch("image/*") },
-                                onLinesExtracted = viewModel::processCapturedLines
-                            )
+                            com.paradox.app.core.ui.components.AiFeatureDisabledContainer(
+                                isAiEnabled = uiState.isAiEnabled,
+                                featureName = "Vision Receipt OCR",
+                                onNavigateToSettings = onNavigateToSettings
+                            ) {
+                                OcrScanSection(
+                                    hasCameraPermission = hasCameraPermission,
+                                    onRequestPermission = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
+                                    onPickFromGallery = { galleryLauncher.launch("image/*") },
+                                    onLinesExtracted = viewModel::processCapturedLines
+                                )
+                            }
                         }
                         CaptureMode.CSV -> {
                             CsvImportSection(
@@ -276,18 +297,25 @@ fun CaptureHubScreen(
                 // Candidate Preview Card (Shown for Quick Add, Voice, and OCR when candidate parsed)
                 if (uiState.selectedMode != CaptureMode.CSV && uiState.candidate != null) {
                     item {
-                        CandidatePreviewCard(
-                            candidate = uiState.candidate!!,
-                            categories = uiState.categories,
-                            paymentMethods = uiState.paymentMethods,
-                            isProcessing = uiState.isProcessing,
-                            onTitleChange = viewModel::updateCandidateTitle,
-                            onAmountChange = viewModel::updateCandidateAmount,
-                            onCategoryChange = viewModel::updateCandidateCategory,
-                            onPaymentChange = viewModel::updateCandidatePaymentMethod,
-                            onNotesChange = viewModel::updateCandidateNotes,
-                            onSave = viewModel::saveCandidateExpense
-                        )
+                        com.paradox.app.core.ui.components.AiFeatureDisabledContainer(
+                            isAiEnabled = uiState.isAiEnabled,
+                            featureName = "AI Auto-Categorization",
+                            onNavigateToSettings = onNavigateToSettings
+                        ) {
+                            CandidatePreviewCard(
+                                candidate = uiState.candidate!!,
+                                categories = uiState.categories,
+                                paymentMethods = uiState.paymentMethods,
+                                isProcessing = uiState.isProcessing,
+                                onTitleChange = viewModel::updateCandidateTitle,
+                                onAmountChange = viewModel::updateCandidateAmount,
+                                onCategoryChange = viewModel::updateCandidateCategory,
+                                onPaymentChange = viewModel::updateCandidatePaymentMethod,
+                                onNotesChange = viewModel::updateCandidateNotes,
+                                onCreateCategory = viewModel::createAndSelectCategory,
+                                onSave = viewModel::saveCandidateExpense
+                            )
+                        }
                     }
                 }
             }
@@ -300,6 +328,14 @@ private fun QuickAddInputSection(
     text: String,
     onTextChanged: (String) -> Unit
 ) {
+    val clipboardManager = androidx.compose.ui.platform.LocalClipboardManager.current
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val clipText = remember(text) {
+        if (text.isBlank()) {
+            clipboardManager.getText()?.text?.trim()?.takeIf { it.isNotBlank() && it.length < 150 }
+        } else null
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -324,6 +360,40 @@ private fun QuickAddInputSection(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
+
+            if (clipText != null) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                    ),
+                    modifier = Modifier.clickable {
+                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                        onTextChanged(clipText)
+                    }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ContentPaste,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = "Paste from Clipboard: \"${clipText.take(28)}${if (clipText.length > 28) "..." else ""}\"",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -575,6 +645,7 @@ private fun CandidatePreviewCard(
     onCategoryChange: (String) -> Unit,
     onPaymentChange: (String) -> Unit,
     onNotesChange: (String) -> Unit,
+    onCreateCategory: (String) -> Unit,
     onSave: () -> Unit
 ) {
     Card(
@@ -616,6 +687,44 @@ private fun CandidatePreviewCard(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onErrorContainer
                         )
+                    }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            // Dynamic Category Suggestion Banner (Feature 20)
+            if (candidate.suggestedNewCategoryName != null) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                    ),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                            Text(
+                                text = "New Category: ${candidate.suggestedNewCategoryName}",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                            Text(
+                                text = "Category not in your list yet",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                            )
+                        }
+                        Button(
+                            onClick = { onCreateCategory(candidate.suggestedNewCategoryName) },
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Add & Select")
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -721,8 +830,12 @@ private fun CandidatePreviewCard(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Save Button
+            val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
             Button(
-                onClick = onSave,
+                onClick = {
+                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                    onSave()
+                },
                 enabled = !isProcessing && candidate.amountStr.isNotBlank() && candidate.title.isNotBlank(),
                 modifier = Modifier.fillMaxWidth().height(48.dp),
                 shape = RoundedCornerShape(12.dp)

@@ -23,6 +23,10 @@ import java.time.YearMonth
 import java.util.UUID
 import javax.inject.Inject
 
+import com.paradox.app.core.network.GeminiApiClient
+import com.paradox.app.domain.repository.AiSettingsRepository
+import com.paradox.app.domain.usecase.intelligence.FinancialContextBuilder
+
 class AskParadoxUseCase @Inject constructor(
     private val expenseRepository: ExpenseRepository,
     private val incomeRepository: IncomeRepository,
@@ -32,9 +36,59 @@ class AskParadoxUseCase @Inject constructor(
     private val savingsGoalRepository: SavingsGoalRepository,
     private val accountRepository: AccountRepository,
     private val calculateSafeToSpendUseCase: CalculateSafeToSpendUseCase,
-    private val calculateHealthScoreUseCase: CalculateFinancialHealthScoreUseCase
+    private val calculateHealthScoreUseCase: CalculateFinancialHealthScoreUseCase,
+    private val geminiApiClient: GeminiApiClient,
+    private val financialContextBuilder: FinancialContextBuilder,
+    private val aiSettingsRepository: AiSettingsRepository
 ) {
     suspend operator fun invoke(profileId: String, query: String): GroundedChatMessage {
+        val isAiOn = aiSettingsRepository.isAiEnabled.first()
+        val apiKey = if (isAiOn) aiSettingsRepository.getApiKey() else null
+
+        if (isAiOn && !apiKey.isNullOrBlank()) {
+            val liveContext = financialContextBuilder.buildContext(profileId)
+            val systemInstruction = """
+                You are 'Finny', Paradox's intelligent AI financial companion.
+                You give sharp, concise, actionable financial advice grounded strictly in the user's live financial data.
+                Always be helpful, realistic, and use the exact numbers from the context.
+                Support Indian Rupee (₹) formatting.
+                If asked 'Can I afford X?', check the Daily Safe-to-Spend and Remaining Monthly Budget before giving a clear Yes/No/Caution verdict.
+                If asked for a roast or vibe check, provide a witty, engaging, and constructive breakdown.
+            """.trimIndent()
+
+            val prompt = """
+                User Question: "$query"
+
+                $liveContext
+            """.trimIndent()
+
+            val geminiResult = geminiApiClient.generateResponse(
+                prompt = prompt,
+                systemInstruction = systemInstruction,
+                apiKey = apiKey
+            )
+
+            if (geminiResult.isSuccess) {
+                val responseText = geminiResult.getOrNull()
+                if (!responseText.isNullOrBlank()) {
+                    return GroundedChatMessage(
+                        id = UUID.randomUUID().toString(),
+                        isUser = false,
+                        message = responseText,
+                        timestamp = Instant.now(),
+                        groundedSources = listOf(
+                            GroundedSourceRef(
+                                type = "AI_MODEL",
+                                title = "Finny Intelligence (Gemini)",
+                                amount = Money.zero("INR")
+                            )
+                        )
+                    )
+                }
+            }
+        }
+
+        // Deterministic Fallback Engine (Offline or AI disabled)
         val cleaned = query.trim().lowercase()
         val today = LocalDate.now()
         val yearMonth = YearMonth.from(today)

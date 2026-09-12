@@ -35,6 +35,13 @@ import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
+import android.content.Context
+import com.paradox.app.core.network.GeminiApiClient
+import com.paradox.app.domain.repository.AiSettingsRepository
+import com.paradox.app.domain.usecase.category.FuzzyCategoryMatcher
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.first
+
 enum class CaptureMode {
     QUICK_ADD,
     VOICE,
@@ -51,7 +58,8 @@ data class EditableCandidate(
     val paymentMethodId: String = "",
     val notes: String = "",
     val source: String = "QUICK_ADD",
-    val duplicateWarning: DuplicateWarning = DuplicateWarning(false)
+    val duplicateWarning: DuplicateWarning = DuplicateWarning(false),
+    val suggestedNewCategoryName: String? = null
 )
 
 data class CaptureUiState(
@@ -65,7 +73,8 @@ data class CaptureUiState(
     val isProcessing: Boolean = false,
     val saveSuccess: Boolean = false,
     val errorMessage: String? = null,
-    val activeProfileId: String? = null
+    val activeProfileId: String? = null,
+    val isAiEnabled: Boolean = false
 )
 
 @HiltViewModel
@@ -79,7 +88,11 @@ class CaptureViewModel @Inject constructor(
     private val ocrHelper: ReceiptImageOcrHelper,
     private val voiceManager: VoiceRecognitionManager,
     private val duplicateGuard: DuplicateGuardUseCase,
-    private val csvImportUseCase: CsvImportUseCase
+    private val csvImportUseCase: CsvImportUseCase,
+    private val geminiApiClient: GeminiApiClient,
+    private val aiSettingsRepository: AiSettingsRepository,
+    private val fuzzyCategoryMatcher: FuzzyCategoryMatcher,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CaptureUiState())
@@ -93,6 +106,11 @@ class CaptureViewModel @Inject constructor(
     }
 
     private fun loadData() {
+        viewModelScope.launch {
+            aiSettingsRepository.isAiEnabled.collectLatest { enabled ->
+                _uiState.update { it.copy(isAiEnabled = enabled) }
+            }
+        }
         viewModelScope.launch {
             sessionDataStore.activeProfileId.collectLatest { profileId ->
                 _uiState.update { it.copy(activeProfileId = profileId) }
@@ -144,6 +162,43 @@ class CaptureViewModel @Inject constructor(
     fun processImageUri(uri: Uri) {
         viewModelScope.launch {
             _uiState.update { it.copy(isProcessing = true, errorMessage = null) }
+
+            // 1. Try Gemini Multimodal Vision if AI is enabled + API key is present
+            val isAiOn = aiSettingsRepository.isAiEnabled.first()
+            val apiKey = if (isAiOn) aiSettingsRepository.getApiKey() else null
+
+            if (isAiOn && !apiKey.isNullOrBlank()) {
+                val imageBytes = try {
+                    context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                } catch (_: Exception) { null }
+
+                if (imageBytes != null && imageBytes.isNotEmpty()) {
+                    val catNames = _uiState.value.categories.map { it.name }
+                    val visionResult = geminiApiClient.analyzeReceiptMultimodal(
+                        imageBytes = imageBytes,
+                        mimeType = "image/jpeg",
+                        availableCategories = catNames,
+                        apiKey = apiKey
+                    )
+
+                    if (visionResult.isSuccess) {
+                        val extraction = visionResult.getOrThrow()
+                        applyParsedCandidate(
+                            title = extraction.merchant ?: "Receipt Expense",
+                            amount = extraction.totalAmount?.let { BigDecimal.valueOf(it).toPlainString() } ?: "",
+                            date = extraction.date?.let { try { LocalDate.parse(it) } catch (_: Exception) { LocalDate.now() } } ?: LocalDate.now(),
+                            suggestedCatName = extraction.categoryName,
+                            suggestedPayType = extraction.paymentMode,
+                            notes = extraction.notes ?: "Scanned via Gemini Vision AI",
+                            source = "AI_VISION"
+                        )
+                        _uiState.update { it.copy(isProcessing = false) }
+                        return@launch
+                    }
+                }
+            }
+
+            // 2. Deterministic ML Kit OCR fallback
             val result = ocrHelper.processUri(uri)
             result.onSuccess { lines ->
                 val parsed = ocrParser.parseReceiptText(lines)
@@ -225,7 +280,8 @@ class CaptureViewModel @Inject constructor(
         source: String
     ) {
         val state = _uiState.value
-        val defaultCat = state.categories.firstOrNull { it.name.equals(suggestedCatName, ignoreCase = true) }
+        val matchResult = fuzzyCategoryMatcher.matchCategory(suggestedCatName, state.categories)
+        val defaultCat = matchResult.matchedCategory
             ?: state.categories.firstOrNull { it.isDefault }
             ?: state.categories.firstOrNull()
 
@@ -240,7 +296,8 @@ class CaptureViewModel @Inject constructor(
             categoryId = defaultCat?.id ?: "",
             paymentMethodId = defaultPay?.id ?: "",
             notes = notes,
-            source = source
+            source = source,
+            suggestedNewCategoryName = matchResult.suggestedNewCategoryName
         )
 
         _uiState.update { it.copy(candidate = candidate) }
@@ -272,6 +329,32 @@ class CaptureViewModel @Inject constructor(
 
     fun updateCandidateNotes(notes: String) {
         _uiState.update { it.copy(candidate = it.candidate?.copy(notes = notes)) }
+    }
+
+    fun createAndSelectCategory(categoryName: String) {
+        val profileId = _uiState.value.activeProfileId ?: return
+        viewModelScope.launch {
+            val newCategory = Category(
+                id = UUID.randomUUID().toString(),
+                profileId = profileId,
+                name = categoryName.trim(),
+                iconName = "category",
+                colorHex = "#5B7C99",
+                isCustom = true,
+                isDefault = false
+            )
+            categoryRepository.addCategory(newCategory)
+            val updatedCategories = categoryRepository.getCategories(profileId).firstOrNull() ?: emptyList()
+            _uiState.update {
+                it.copy(
+                    categories = updatedCategories,
+                    candidate = it.candidate?.copy(
+                        categoryId = newCategory.id,
+                        suggestedNewCategoryName = null
+                    )
+                )
+            }
+        }
     }
 
     private fun checkCandidateDuplicate(candidate: EditableCandidate) {

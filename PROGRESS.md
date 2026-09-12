@@ -1,6 +1,6 @@
 # Paradox Native Android App — Project Progress
 
-## Current Status: Phase 1 through Phase 7 Fully Completed & Verified
+## Current Status: Phase 1 through Phase 9 Fully Completed & Verified
 
 ### Phase-by-Phase Roadmap Progress
 
@@ -82,6 +82,14 @@
   - [x] Top App Bar Dynamic Month Selector Dropdown with reactive multi-month recalculation for dashboard totals, velocity bars, and top categories
   - [x] Wallets & Accounts Net Balance Hero card with liquid vs credit breakdown and 20dp card styling
   - [x] In-App Language Selector Bottom Sheet with runtime locale switching (EN, HI, MR, Hinglish) and DataStore persistence
-  - [x] PRD (`PARADOX_MASTER_PRD.md` v2.1) & SRS (`PARADOX_ANDROID_SRS.md` v1.2) fully synchronized with native architecture
-  - [x] Complete automated unit test suite passing (`./gradlew.bat testDebugUnitTest`)
+
+- [x] **Phase 9: Paradox Quick Ball & Floating Assistive Capture Menu**
+  - [x] Quick Ball 3-Mode Configuration (`OFF`, `IN_APP`, `SYSTEM_WIDE`) with `SessionDataStore` persistence (`FR-P2-016`)
+  - [x] Foreground Overlay Service (`QuickBallOverlayService`) with edge-snap physics and `SYSTEM_ALERT_WINDOW` permission checking (`FR-P2-017`)
+  - [x] Android 14/15 Background Activity Launch compliance via `PendingIntent.getActivity` with `ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED` (`FR-P2-017`)
+  - [x] Radial Crescent Arc Menu (`QuickBallView`) popping out 4 shortcuts (Quick Add, Voice, Scan Receipt, Ask Paradox) with spring physics (`FR-P2-018`)
+  - [x] Minimal Light Pastel sRGB UI Theme with high-contrast slate typography and 95% transparent dismiss scrim (`FR-P2-019`)
+  - [x] 3-Second Inactivity Auto-Tuck: 50% edge hide and 38% opacity dimming with instant touch wake-up (`FR-P2-020`)
+  - [x] Master PRD (`PARADOX_MASTER_PRD.md` v2.2) and Android SRS (`PARADOX_ANDROID_SRS.md` v1.3) fully synchronized with Quick Ball specifications
+  - [x] Verified build and deployment on physical device (Motorola Edge 60 Fusion)
 

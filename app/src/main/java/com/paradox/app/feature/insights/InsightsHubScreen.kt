@@ -53,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -132,43 +133,52 @@ fun InsightsHubScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            ScrollableTabRow(
-                selectedTabIndex = selectedTabIndex,
-                edgePadding = 16.dp,
-                containerColor = MaterialTheme.colorScheme.background,
-                contentColor = MaterialTheme.colorScheme.primary
+            com.paradox.app.core.ui.components.AiFeatureDisabledContainer(
+                isAiEnabled = uiState.isAiEnabled,
+                featureName = "Financial Intelligence Hub",
+                onNavigateToSettings = onNavigateToSettings,
+                modifier = Modifier.fillMaxSize()
             ) {
-                tabTitles.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = {
-                            Text(
-                                title,
-                                style = MaterialTheme.typography.labelLarge.copy(
-                                    fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Medium
-                                )
+                Column(modifier = Modifier.fillMaxSize()) {
+                    ScrollableTabRow(
+                        selectedTabIndex = selectedTabIndex,
+                        edgePadding = 16.dp,
+                        containerColor = MaterialTheme.colorScheme.background,
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ) {
+                        tabTitles.forEachIndexed { index, title ->
+                            Tab(
+                                selected = selectedTabIndex == index,
+                                onClick = { selectedTabIndex = index },
+                                text = {
+                                    Text(
+                                        title,
+                                        style = MaterialTheme.typography.labelLarge.copy(
+                                            fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Medium
+                                        )
+                                    )
+                                }
                             )
                         }
-                    )
-                }
-            }
+                    }
 
-            if (uiState.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                }
-            } else {
-                when (selectedTabIndex) {
-                    0 -> SafeToSpendTab(uiState.safeToSpend, uiState.forecast)
-                    1 -> HealthScoreTab(uiState.healthScore)
-                    2 -> LeakHunterTab(uiState.leaks)
-                    3 -> PurchaseSimulatorTab(
-                        amount = uiState.simulatedAmountInput,
-                        onAmountChanged = viewModel::updateSimulatedAmount,
-                        onSimulate = viewModel::simulatePurchase,
-                        result = uiState.simulationResult
-                    )
+                    if (uiState.isLoading) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        }
+                    } else {
+                        when (selectedTabIndex) {
+                            0 -> SafeToSpendTab(uiState.safeToSpend, uiState.forecast)
+                            1 -> HealthScoreTab(uiState.healthScore)
+                            2 -> LeakHunterTab(uiState.leaks)
+                            3 -> PurchaseSimulatorTab(
+                                amount = uiState.simulatedAmountInput,
+                                onAmountChanged = viewModel::updateSimulatedAmount,
+                                onSimulate = viewModel::simulatePurchase,
+                                result = uiState.simulationResult
+                            )
+                        }
+                    }
                 }
             }
         }

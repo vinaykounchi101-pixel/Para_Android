@@ -55,6 +55,7 @@ import com.paradox.app.feature.insights.MetricRow
 fun EngagementScreen(
     onNavigateBack: () -> Unit,
     onNavigateToSplit: () -> Unit,
+    onNavigateToSettings: () -> Unit = {},
     viewModel: EngagementViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -101,26 +102,32 @@ fun EngagementScreen(
                 // Financial Vibe Card
                 uiState.digest?.vibe?.let { vibe ->
                     item {
-                        Card(
-                            shape = RoundedCornerShape(20.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)),
-                            modifier = Modifier.fillMaxWidth()
+                        com.paradox.app.core.ui.components.AiFeatureDisabledContainer(
+                            isAiEnabled = uiState.isAiEnabled,
+                            featureName = "Financial Vibe & Roast",
+                            onNavigateToSettings = onNavigateToSettings
                         ) {
-                            Column(modifier = Modifier.padding(20.dp)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text("MONTHLY FINANCIAL VIBE", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                                    Text(vibe.vibeEmoji, fontSize = 28.sp)
+                            Card(
+                                shape = RoundedCornerShape(20.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.padding(20.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text("MONTHLY FINANCIAL VIBE", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                        Text(vibe.vibeEmoji, fontSize = 28.sp)
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(vibe.vibeTitle, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(vibe.tagline, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(vibe.summary, style = MaterialTheme.typography.bodySmall)
                                 }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(vibe.vibeTitle, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(vibe.tagline, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(vibe.summary, style = MaterialTheme.typography.bodySmall)
                             }
                         }
                     }
@@ -129,21 +136,27 @@ fun EngagementScreen(
                 // Monthly Digest Card
                 uiState.digest?.let { d ->
                     item {
-                        Card(
-                            shape = RoundedCornerShape(18.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                            modifier = Modifier.fillMaxWidth()
+                        com.paradox.app.core.ui.components.AiFeatureDisabledContainer(
+                            isAiEnabled = uiState.isAiEnabled,
+                            featureName = "Monthly AI Digest",
+                            onNavigateToSettings = onNavigateToSettings
                         ) {
-                            Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Text("Monthly Highlights (${d.monthYearLabel})", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                                Text(d.highlightSentence, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                MetricRow("Total Income Recorded", "₹${d.totalEarned.amount}")
-                                MetricRow("Total Expenses Logged", "₹${d.totalSpent.amount}")
-                                MetricRow("Net Savings Generated", "₹${d.netSaved.amount} (${d.savingsRatePct.toInt()}%)")
-                                MetricRow("Top Expense Category", "${d.topCategory} (₹${d.topCategoryAmount.amount})")
-                                MetricRow("Largest Single Expense", "${d.biggestExpenseTitle} (₹${d.biggestExpenseAmount.amount})")
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(d.positiveEncouragement, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Card(
+                                shape = RoundedCornerShape(18.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    Text("Monthly Highlights (${d.monthYearLabel})", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                    Text(d.highlightSentence, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                    MetricRow("Total Income Recorded", "₹${d.totalEarned.amount}")
+                                    MetricRow("Total Expenses Logged", "₹${d.totalSpent.amount}")
+                                    MetricRow("Net Savings Generated", "₹${d.netSaved.amount} (${d.savingsRatePct.toInt()}%)")
+                                    MetricRow("Top Expense Category", "${d.topCategory} (₹${d.topCategoryAmount.amount})")
+                                    MetricRow("Largest Single Expense", "${d.biggestExpenseTitle} (₹${d.biggestExpenseAmount.amount})")
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(d.positiveEncouragement, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
                             }
                         }
                     }

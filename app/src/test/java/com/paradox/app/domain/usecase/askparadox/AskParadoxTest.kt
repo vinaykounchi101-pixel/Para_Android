@@ -38,11 +38,17 @@ class AskParadoxTest {
     private val accountRepository: AccountRepository = mockk(relaxed = true)
     private val calculateSafeToSpendUseCase: CalculateSafeToSpendUseCase = mockk()
     private val calculateHealthScoreUseCase: CalculateFinancialHealthScoreUseCase = mockk()
+    private val geminiApiClient: com.paradox.app.core.network.GeminiApiClient = mockk(relaxed = true)
+    private val financialContextBuilder: com.paradox.app.domain.usecase.intelligence.FinancialContextBuilder = mockk(relaxed = true)
+    private val aiSettingsRepository: com.paradox.app.domain.repository.AiSettingsRepository = mockk(relaxed = true)
 
     private lateinit var askParadox: AskParadoxUseCase
 
     @Before
     fun setUp() {
+        every { aiSettingsRepository.isAiEnabled } returns flowOf(false)
+        every { aiSettingsRepository.hasApiKey() } returns false
+
         askParadox = AskParadoxUseCase(
             expenseRepository,
             incomeRepository,
@@ -52,7 +58,10 @@ class AskParadoxTest {
             savingsGoalRepository,
             accountRepository,
             calculateSafeToSpendUseCase,
-            calculateHealthScoreUseCase
+            calculateHealthScoreUseCase,
+            geminiApiClient,
+            financialContextBuilder,
+            aiSettingsRepository
         )
     }
 

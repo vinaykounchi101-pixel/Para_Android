@@ -1,7 +1,7 @@
 # Paradox — Native Android Product Requirements Document (PRD)
 
-**Document Version:** 2.1  
-**Status:** Consolidated Product Definition (Updated with Debts & Udhaar Khata, Dynamic Month Selector, Wallets Net Balance Hero, & Multilingual Localization)  
+**Document Version:** 2.2  
+**Status:** Consolidated Product Definition (Updated with Paradox Quick Ball & Floating Assistive Capture Menu, Debts & Udhaar Khata, Dynamic Month Selector, Wallets Net Balance Hero, & Multilingual Localization)  
 **Product:** Paradox Native Android App  
 **Platform:** Android  
 **Document Type:** Master Product Requirements Document
@@ -196,18 +196,18 @@ Manual, voice, receipt scan, screenshot, share sheet, import, SMS candidate, or 
 
 ## 8. Fast Entry & Capture
 
-### Manual
+### 8.1 Manual Entry
 Reliable baseline. Target under 30 seconds initially, with common entry progressively optimized toward 15 seconds.
 
-### Natural-language Quick Add
+### 8.2 Natural-language Quick Add
 Example: “Uber 240 cash yesterday”.
 
 Extract title/merchant, amount, date, payment method, category, and notes where available. Show an editable preview before save.
 
-### Voice
+### 8.3 Voice Entry
 Speech-to-text converts spoken expenses into a candidate transaction and then uses the same validation/confirmation flow.
 
-### Receipt/Bill Scanner
+### 8.4 Receipt/Bill Scanner (OCR)
 Camera or selected image → OCR/extraction → preview → edit → confirm → save.
 
 Possible extraction:
@@ -219,8 +219,34 @@ Possible extraction:
 - Category
 - Relevant text
 
-### Screenshot / Share to Paradox
+### 8.5 Screenshot / Share to Paradox
 Payment confirmations, screenshots, receipts, invoices, and supported text can create a candidate transaction. User confirmation is required.
+
+### 8.6 Paradox Quick Ball (Assistive Floating Radial Arc Menu)
+An always-accessible, ergonomic assistive floating ball designed for instant financial logging from any screen or third-party application without switching apps.
+
+- **Modes of Operation**:
+  1. `OFF`: Disabled completely.
+  2. `IN_APP`: Active strictly within Paradox screens as a Jetpack Compose overlay (zero special permissions required).
+  3. `SYSTEM_WIDE`: Floats system-wide over any app (e.g., GPay, PhonePe, Paytm, Swiggy, Zomato, Amazon, Uber) powered by a background Android `SYSTEM_ALERT_WINDOW` overlay service.
+- **4 Instant Shortcuts (Radial Arc)**:
+  1. ✍️ **Quick Add**: Opens the natural-language bottom sheet entry interface.
+  2. 🎙️ **Voice Entry**: Triggers instant speech-to-text audio expense capture.
+  3. 📷 **Scan Receipt**: Launches CameraX / ML Kit document and receipt OCR scanner.
+  4. ✨ **Ask Paradox**: Invokes the conversational AI Copilot for immediate financial answers.
+- **Visual Design & Aesthetics (Minimal Light Pastel sRGB Theme)**:
+  - **Pastel Palette**: Mint Cream (`#F0FDF4`), Sky Cyan Cream (`#F0F9FF`), Soft Periwinkle (`#EEF2FF`), Lavender Lilac (`#FAF5FF`).
+  - **Typography**: Dark Slate `#1E293B` bold typography with high contrast and subtle drop shadows.
+  - **Transparent Scrim**: 95% transparent dismiss scrim (`alpha = 0.05f`) ensuring wallpaper and underlying app content remain bright and completely unobstructed.
+  - **Launcher Emblem**: 3D impossible triangle geometric emblem with pulsing ambient rings.
+- **Radial Crescent Arc Geometry**:
+  - Arranged in an ergonomic C-curve crescent arc popping out cleanly from the edge with spring/overshoot bounce physics (`stiffness = 380f`, `dampingRatio = 0.65f`).
+  - Maintains optimal thumb-reach distance (radius 135dp) with dedicated close button (`✕`) at the center orb.
+- **3-Second Inactivity Auto-Tuck & Dimming**:
+  - When idle for 3 seconds, the Quick Ball automatically tucks 50% into the nearest screen edge and fades to 38% opacity (`alpha = 0.38f`).
+  - Touching or dragging immediately restores full 95% opacity and un-tucks the orb.
+- **Android 14/15 Background Launch Compliance**:
+  - Utilizes `PendingIntent.getActivity` with `ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED` (`FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP`) for crash-free background activity launches from overlay services across all modern Android versions.
 
 ---
 

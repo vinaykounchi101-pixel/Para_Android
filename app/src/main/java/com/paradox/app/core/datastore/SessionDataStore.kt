@@ -26,6 +26,8 @@ class SessionDataStore @Inject constructor(
     private val themeModeKey = stringPreferencesKey("theme_mode")
     private val themePaletteKey = stringPreferencesKey("theme_palette")
     private val appLanguageKey = stringPreferencesKey("app_language")
+    private val isAiEnabledKey = booleanPreferencesKey("is_ai_enabled")
+    private val quickBallModeKey = stringPreferencesKey("quick_ball_mode")
 
     val activeProfileId: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[activeProfileIdKey]
@@ -49,6 +51,14 @@ class SessionDataStore @Inject constructor(
 
     val appLanguage: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[appLanguageKey] ?: "en"
+    }
+
+    val isAiEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[isAiEnabledKey] ?: false
+    }
+
+    val quickBallMode: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[quickBallModeKey] ?: "IN_APP"
     }
 
     suspend fun setActiveProfileId(profileId: String?) {
@@ -88,6 +98,18 @@ class SessionDataStore @Inject constructor(
     suspend fun setAppLanguage(languageCode: String) {
         context.dataStore.edit { preferences ->
             preferences[appLanguageKey] = languageCode
+        }
+    }
+
+    suspend fun setAiEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[isAiEnabledKey] = enabled
+        }
+    }
+
+    suspend fun setQuickBallMode(mode: String) {
+        context.dataStore.edit { preferences ->
+            preferences[quickBallModeKey] = mode
         }
     }
 }

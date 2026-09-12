@@ -20,6 +20,7 @@ import com.paradox.app.domain.model.IncomeSource
 import com.paradox.app.domain.model.RecurringExpense
 import com.paradox.app.domain.model.RecurringFrequency
 import com.paradox.app.domain.model.SavingsGoal
+import com.paradox.app.domain.repository.AiSettingsRepository
 import com.paradox.app.domain.repository.AccountRepository
 import com.paradox.app.domain.repository.BudgetRepository
 import com.paradox.app.domain.repository.CategoryRepository
@@ -53,6 +54,13 @@ data class SettingsUiState(
     val themeMode: String = "SYSTEM",
     val themePalette: String = "SLATE",
     val appLanguage: String = "en",
+    val isAiEnabled: Boolean = false,
+    val hasApiKey: Boolean = false,
+    val quickBallMode: String = "IN_APP",
+    val showApiKeyDialog: Boolean = false,
+    val showEditKeyDialog: Boolean = false,
+    val showRemoveKeyDialog: Boolean = false,
+    val apiKeyInputError: String? = null,
     val isSeeding: Boolean = false,
     val isLoading: Boolean = false
 )
@@ -78,7 +86,8 @@ class SettingsViewModel @Inject constructor(
     private val paymentMethodRepository: PaymentMethodRepository,
     private val accountRepository: AccountRepository,
     private val recurringRepository: RecurringExpenseRepository,
-    private val savingsGoalRepository: SavingsGoalRepository
+    private val savingsGoalRepository: SavingsGoalRepository,
+    private val aiSettingsRepository: AiSettingsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -96,6 +105,7 @@ class SettingsViewModel @Inject constructor(
             val activeId = sessionDataStore.activeProfileId.firstOrNull()
             val currency = sessionDataStore.preferredCurrency.firstOrNull() ?: "INR"
             val canBio = biometricPromptManager.canAuthenticate()
+            val hasKey = aiSettingsRepository.hasApiKey()
 
             if (activeId != null) {
                 val profile = profileRepository.getProfileById(activeId)
@@ -104,8 +114,20 @@ class SettingsViewModel @Inject constructor(
                         activeProfile = profile,
                         currency = currency,
                         canUseBiometric = canBio,
-                        isBiometricEnabled = profile?.biometricEnabled ?: false
+                        isBiometricEnabled = profile?.biometricEnabled ?: false,
+                        hasApiKey = hasKey
                     )
+                }
+            }
+
+            launch {
+                aiSettingsRepository.isAiEnabled.collect { enabled ->
+                    _uiState.update { 
+                        it.copy(
+                            isAiEnabled = enabled,
+                            hasApiKey = aiSettingsRepository.hasApiKey()
+                        ) 
+                    }
                 }
             }
 
@@ -127,9 +149,21 @@ class SettingsViewModel @Inject constructor(
                 }
             }
 
+            launch {
+                sessionDataStore.quickBallMode.collect { mode ->
+                    _uiState.update { it.copy(quickBallMode = mode) }
+                }
+            }
+
             getProfilesUseCase().collect { profiles ->
                 _uiState.update { it.copy(allProfiles = profiles) }
             }
+        }
+    }
+
+    fun setQuickBallMode(mode: String) {
+        viewModelScope.launch {
+            sessionDataStore.setQuickBallMode(mode)
         }
     }
 
@@ -194,6 +228,125 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             deleteProfileUseCase(profileId)
             _events.emit(SettingsEvent.NavigateToOnboarding)
+        }
+    }
+
+    fun toggleAiFeatures(enabled: Boolean) {
+        if (enabled) {
+            val hasKey = aiSettingsRepository.hasApiKey()
+            if (hasKey) {
+                viewModelScope.launch {
+                    aiSettingsRepository.setAiEnabled(true)
+                    _uiState.update { it.copy(isAiEnabled = true, hasApiKey = true) }
+                    _events.emit(SettingsEvent.ShowToast("AI Features enabled"))
+                }
+            } else {
+                _uiState.update { it.copy(showApiKeyDialog = true, apiKeyInputError = null) }
+            }
+        } else {
+            // Turning OFF preserves the stored key locally without deleting/overwriting it
+            viewModelScope.launch {
+                aiSettingsRepository.setAiEnabled(false)
+                _uiState.update { it.copy(isAiEnabled = false, hasApiKey = aiSettingsRepository.hasApiKey()) }
+                _events.emit(SettingsEvent.ShowToast("AI Features disabled. Stored key preserved."))
+            }
+        }
+    }
+
+    fun openApiKeyDialog() {
+        _uiState.update { it.copy(showApiKeyDialog = true, apiKeyInputError = null) }
+    }
+
+    fun closeApiKeyDialog() {
+        _uiState.update { it.copy(showApiKeyDialog = false, apiKeyInputError = null) }
+    }
+
+    fun openEditKeyDialog() {
+        _uiState.update { it.copy(showEditKeyDialog = true, apiKeyInputError = null) }
+    }
+
+    fun closeEditKeyDialog() {
+        _uiState.update { it.copy(showEditKeyDialog = false, apiKeyInputError = null) }
+    }
+
+    fun openRemoveKeyDialog() {
+        _uiState.update { it.copy(showRemoveKeyDialog = true) }
+    }
+
+    fun closeRemoveKeyDialog() {
+        _uiState.update { it.copy(showRemoveKeyDialog = false) }
+    }
+
+    fun saveNewApiKey(key: String) {
+        val trimmed = key.trim()
+        if (trimmed.isBlank()) {
+            _uiState.update { it.copy(apiKeyInputError = "API Key cannot be empty") }
+            return
+        }
+
+        viewModelScope.launch {
+            val result = aiSettingsRepository.saveApiKey(trimmed)
+            if (result.isSuccess) {
+                aiSettingsRepository.setAiEnabled(true)
+                _uiState.update {
+                    it.copy(
+                        showApiKeyDialog = false,
+                        apiKeyInputError = null,
+                        hasApiKey = true,
+                        isAiEnabled = true
+                    )
+                }
+                _events.emit(SettingsEvent.ShowToast("API Key securely encrypted & saved. AI Features enabled!"))
+            } else {
+                _uiState.update {
+                    it.copy(apiKeyInputError = "Failed to store API Key: ${result.exceptionOrNull()?.message}")
+                }
+            }
+        }
+    }
+
+    fun editApiKey(newKey: String) {
+        val trimmed = newKey.trim()
+        if (trimmed.isBlank()) {
+            _uiState.update { it.copy(apiKeyInputError = "API Key cannot be empty") }
+            return
+        }
+
+        viewModelScope.launch {
+            val result = aiSettingsRepository.saveApiKey(trimmed)
+            if (result.isSuccess) {
+                _uiState.update {
+                    it.copy(
+                        showEditKeyDialog = false,
+                        apiKeyInputError = null,
+                        hasApiKey = true
+                    )
+                }
+                _events.emit(SettingsEvent.ShowToast("API Key updated successfully."))
+            } else {
+                _uiState.update {
+                    it.copy(apiKeyInputError = "Failed to update API Key: ${result.exceptionOrNull()?.message}")
+                }
+            }
+        }
+    }
+
+    fun removeApiKey() {
+        viewModelScope.launch {
+            val result = aiSettingsRepository.removeApiKey()
+            if (result.isSuccess) {
+                aiSettingsRepository.setAiEnabled(false)
+                _uiState.update {
+                    it.copy(
+                        showRemoveKeyDialog = false,
+                        hasApiKey = false,
+                        isAiEnabled = false
+                    )
+                }
+                _events.emit(SettingsEvent.ShowToast("API Key removed. AI Features disabled."))
+            } else {
+                _events.emit(SettingsEvent.ShowToast("Failed to remove API Key"))
+            }
         }
     }
 

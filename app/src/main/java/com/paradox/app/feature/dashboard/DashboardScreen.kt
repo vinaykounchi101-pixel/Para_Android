@@ -153,11 +153,13 @@ fun DashboardScreen(
             ) { summary ->
                 DashboardContent(
                     summary = summary,
+                    isAiEnabled = uiState.isAiEnabled,
                     selectedYearMonth = uiState.selectedYearMonth,
                     availableMonths = uiState.availableMonths,
                     onSelectMonth = viewModel::selectMonth,
                     onNavigateToLedger = onNavigateToLedger,
                     onNavigateToBudgets = onNavigateToBudgets,
+                    onNavigateToSettings = onNavigateToSettings,
                     onNavigateToExpenseDetail = onNavigateToExpenseDetail,
                     onNavigateToIncome = onNavigateToIncome,
                     onNavigateToAccounts = onNavigateToAccounts,
@@ -285,11 +287,13 @@ private fun StitchHeader(
 @Composable
 private fun DashboardContent(
     summary: DashboardSummary,
+    isAiEnabled: Boolean,
     selectedYearMonth: YearMonth,
     availableMonths: List<YearMonth>,
     onSelectMonth: (YearMonth) -> Unit,
     onNavigateToLedger: () -> Unit,
     onNavigateToBudgets: () -> Unit,
+    onNavigateToSettings: () -> Unit,
     onNavigateToExpenseDetail: (String) -> Unit,
     onNavigateToIncome: () -> Unit,
     onNavigateToAccounts: () -> Unit,
@@ -351,15 +355,23 @@ private fun DashboardContent(
             onCardClick = onNavigateToBudgets
         )
 
-        // Safe-to-Spend Tile (FR-P4-002)
-        StitchSafeToSpendTile(
-            summary = summary,
-            selectedYearMonth = selectedYearMonth,
-            onClick = onNavigateToInsights
-        )
+        // Safe-to-Spend Tile (FR-P4-002) - Kept in place, blurred when AI disabled
+        com.paradox.app.core.ui.components.AiFeatureDisabledContainer(
+            isAiEnabled = isAiEnabled,
+            featureName = "Safe-to-Spend",
+            compact = true,
+            onNavigateToSettings = onNavigateToSettings
+        ) {
+            StitchSafeToSpendTile(
+                summary = summary,
+                selectedYearMonth = selectedYearMonth,
+                onClick = onNavigateToInsights
+            )
+        }
 
         // AI & Assisted Capture Quick Access Bar
         QuickActionPillRow(
+            isAiEnabled = isAiEnabled,
             onNavigateToAskParadox = onNavigateToAskParadox,
             onNavigateToInsights = onNavigateToInsights,
             onNavigateToCapture = onNavigateToCapture,
@@ -934,6 +946,7 @@ private fun StitchSpendingVelocityCard(
 
 @Composable
 private fun QuickActionPillRow(
+    isAiEnabled: Boolean,
     onNavigateToAskParadox: () -> Unit,
     onNavigateToInsights: () -> Unit,
     onNavigateToCapture: (String) -> Unit,
@@ -951,12 +964,37 @@ private fun QuickActionPillRow(
             .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        QuickPill(label = "✨ Ask Paradox", onClick = onNavigateToAskParadox)
-        QuickPill(label = "🧠 Intelligence", onClick = onNavigateToInsights)
+        QuickPill(
+            label = if (isAiEnabled) "✨ Ask Paradox" else "🔒 Ask Paradox",
+            isAi = true,
+            isAiEnabled = isAiEnabled,
+            onClick = onNavigateToAskParadox
+        )
+        QuickPill(
+            label = if (isAiEnabled) "🧠 Intelligence" else "🔒 Intelligence",
+            isAi = true,
+            isAiEnabled = isAiEnabled,
+            onClick = onNavigateToInsights
+        )
         QuickPill(label = "🤝 Debts & Udhaar", onClick = onNavigateToDebts)
-        QuickPill(label = "📷 Scan Receipt", onClick = { onNavigateToCapture("OCR") })
-        QuickPill(label = "🎤 Voice Entry", onClick = { onNavigateToCapture("VOICE") })
-        QuickPill(label = "📊 Monthly Digest", onClick = onNavigateToEngagement)
+        QuickPill(
+            label = if (isAiEnabled) "📷 Scan Receipt" else "🔒 Scan Receipt",
+            isAi = true,
+            isAiEnabled = isAiEnabled,
+            onClick = { onNavigateToCapture("OCR") }
+        )
+        QuickPill(
+            label = if (isAiEnabled) "🎤 Voice Entry" else "🔒 Voice Entry",
+            isAi = true,
+            isAiEnabled = isAiEnabled,
+            onClick = { onNavigateToCapture("VOICE") }
+        )
+        QuickPill(
+            label = if (isAiEnabled) "📊 Monthly Digest" else "🔒 Monthly Digest",
+            isAi = true,
+            isAiEnabled = isAiEnabled,
+            onClick = onNavigateToEngagement
+        )
         QuickPill(label = "💰 Incomes", onClick = onNavigateToIncome)
         QuickPill(label = "🏦 Accounts", onClick = onNavigateToAccounts)
         QuickPill(label = "🔁 Subscriptions", onClick = onNavigateToRecurring)
@@ -968,21 +1006,27 @@ private fun QuickActionPillRow(
 @Composable
 private fun QuickPill(
     label: String,
+    isAi: Boolean = false,
+    isAiEnabled: Boolean = true,
     onClick: () -> Unit
 ) {
+    val isDimmed = isAi && !isAiEnabled
     Surface(
         shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        color = if (isDimmed) MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surfaceContainerLow,
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            if (isDimmed) MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f) else MaterialTheme.colorScheme.outlineVariant
+        ),
         modifier = Modifier.clickable { onClick() }
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium.copy(
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = if (isDimmed) FontWeight.Normal else FontWeight.SemiBold,
                 fontSize = 12.sp
             ),
-            color = MaterialTheme.colorScheme.onSurface,
+            color = if (isDimmed) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
         )
     }

@@ -69,6 +69,26 @@ Paradox Android is a native, local-first, privacy-first personal finance applica
 - **In-App Localization (`SettingsScreen.kt`, `SettingsViewModel.kt`, `SessionDataStore.kt`)**:
   - Interactive bottom sheet for switching between English (`en`), Hindi (`hi`), Marathi (`mr`), and Hinglish/Minglish (`hi-Latn`) with persistent DataStore storage.
 
+## Phase 9: Paradox Quick Ball & Floating Assistive Capture Architecture
+- **Quick Ball Modes & Settings (`SessionDataStore.kt`, `SettingsViewModel.kt`, `SettingsScreen.kt`)**:
+  - `QuickBallMode`: `OFF`, `IN_APP` (zero permissions), and `SYSTEM_WIDE` (`SYSTEM_ALERT_WINDOW`).
+  - Stored in DataStore with reactive Flow observation triggering overlay service startup/shutdown.
+- **System-Wide Overlay Service (`QuickBallOverlayService.kt`)**:
+  - `ForegroundService` with notification channel and `TYPE_APPLICATION_OVERLAY` WindowManager layout.
+  - Custom `ComposeView` with `ViewTreeLifecycleOwner`, `ViewTreeSavedStateRegistryOwner`, and `ViewTreeViewModelStoreOwner` lifecycle attachments.
+  - Floating orb with edge-snap physics (snapping to nearest left/right screen edge on drag release).
+- **Radial Crescent Arc Layout (`QuickBallView.kt`)**:
+  - Ergonomic C-curve crescent radial arc popping out 4 shortcuts (Quick Add, Voice, Scan Receipt, Ask Paradox) based on screen side (left/right).
+  - Physics-based spring animations (`stiffness = 380f`, `dampingRatio = 0.65f`) and radial distance calculation (`radius = 135dp`).
+- **Minimal Light Pastel sRGB UI Theme**:
+  - Pastel rounded capsules (Mint Cream `#F0FDF4`, Sky Cyan Cream `#F0F9FF`, Soft Periwinkle `#EEF2FF`, Lavender Lilac `#FAF5FF`) with Dark Slate `#1E293B` typography.
+  - 95% transparent dismiss scrim (`alpha = 0.05f`) preventing background/wallpaper darkening.
+- **3-Second Inactivity Auto-Tuck & Dimming**:
+  - Coroutine timer resetting on user interaction; after 3s idle, tucks 50% into screen edge and dims to 38% opacity.
+  - Instant wake-up to 95% opacity on touch.
+- **Android 14/15 Background Activity Launch Compliance**:
+  - Employs `PendingIntent.getActivity` configured with `ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED` (`FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP`) and `Intent.FLAG_ACTIVITY_NEW_TASK` to guarantee flawless deep-link activity launching over third-party applications on Android 14 and Android 15.
+
 ## Test Coverage (45 Passing Unit Tests)
 - `MoneyTest`: Exact decimal arithmetic, banker's rounding, currency safety.
 - `BudgetStatusTest`: Threshold transitions (`ON_TRACK`, `NEAR_LIMIT >=80%`, `OVER_BUDGET >=100%`).

@@ -17,18 +17,22 @@ import kotlinx.coroutines.flow.combine
 import java.time.YearMonth
 import javax.inject.Inject
 
+import com.paradox.app.domain.repository.AiSettingsRepository
+
 data class DashboardUiState(
     val summary: DashboardSummary? = null,
     val selectedYearMonth: YearMonth = YearMonth.now(),
     val availableMonths: List<YearMonth> = emptyList(),
     val isLoading: Boolean = true,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isAiEnabled: Boolean = false
 )
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val sessionDataStore: SessionDataStore,
-    private val getDashboardSummaryUseCase: GetDashboardSummaryUseCase
+    private val getDashboardSummaryUseCase: GetDashboardSummaryUseCase,
+    private val aiSettingsRepository: AiSettingsRepository
 ) : ViewModel() {
 
     private val _selectedYearMonth = MutableStateFlow(YearMonth.now())
@@ -49,6 +53,12 @@ class DashboardViewModel @Inject constructor(
     }
 
     private fun loadDashboard() {
+        viewModelScope.launch {
+            aiSettingsRepository.isAiEnabled.collect { enabled ->
+                _uiState.update { it.copy(isAiEnabled = enabled) }
+            }
+        }
+
         viewModelScope.launch {
             combine(
                 sessionDataStore.activeProfileId,

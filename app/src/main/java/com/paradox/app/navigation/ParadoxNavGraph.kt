@@ -37,6 +37,8 @@ import com.paradox.app.feature.sync.SyncSettingsScreen
 fun ParadoxNavGraph(
     navController: NavHostController,
     startDestination: String,
+    sharedText: String? = null,
+    sharedImageUri: android.net.Uri? = null,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -70,6 +72,14 @@ fun ParadoxNavGraph(
         }
 
         composable(Screen.Dashboard.route) {
+            androidx.compose.runtime.LaunchedEffect(sharedText, sharedImageUri) {
+                if (sharedText != null) {
+                    navController.navigate(Screen.Capture.createRoute("QUICK_ADD"))
+                } else if (sharedImageUri != null) {
+                    navController.navigate(Screen.Capture.createRoute("OCR"))
+                }
+            }
+
             DashboardScreen(
                 onNavigateToAddExpense = {
                     navController.navigate(Screen.AddExpense.route)
@@ -365,14 +375,18 @@ fun ParadoxNavGraph(
             }
             com.paradox.app.feature.capture.CaptureHubScreen(
                 initialMode = mode,
-                onNavigateBack = { navController.popBackStack() }
+                sharedText = sharedText,
+                sharedImageUri = sharedImageUri,
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) }
             )
         }
 
         // Phase 4 Routes
         composable(Screen.AskParadox.route) {
             AskParadoxScreen(
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) }
             )
         }
 
@@ -414,7 +428,8 @@ fun ParadoxNavGraph(
         composable(Screen.Engagement.route) {
             EngagementScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onNavigateToSplit = { navController.navigate(Screen.SplitExpense.route) }
+                onNavigateToSplit = { navController.navigate(Screen.SplitExpense.route) },
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) }
             )
         }
 
